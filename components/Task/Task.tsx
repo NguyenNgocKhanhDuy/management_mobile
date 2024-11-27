@@ -2,6 +2,7 @@ import { View, StyleSheet } from "react-native";
 import React, { useRef, useState } from "react";
 import Carousel from "pinar";
 import Board from "../Board/Board";
+import axios from "axios";
 
 interface Task {
 	id: string;
@@ -10,7 +11,39 @@ interface Task {
 	position: number;
 }
 
-export default function Task() {
+export default function Task(props: any) {
+	let idProject = "1234"
+	const handleGetTaskOfProject = async () => {
+		try {
+			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/tasks/tasksOfProject/${idProject}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${props.token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				console.log(data.result);
+				// setTasks(data.result);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				// props.setErrorMessage(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				// props.setErrorMessage("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				// props.setErrorMessage("An unexpected error occurred: " + error.message);
+			}
+			// props.setLoading(false);
+			// props.isSelectProject();
+			// props.setShowError(true);
+		}
+	};
+
 	const boards = ["To do", "Pending", "Done"];
 	const [tasks, setTasks] = useState<Task[]>([
 		{ id: "1", name: "Test 1", status: "todo", position: 0 },
