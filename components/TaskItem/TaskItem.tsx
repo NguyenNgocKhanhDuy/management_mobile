@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Animated, Text, Dimensions, View, Image } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { taskItemStyles } from "./TaskItem.styles";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function TaskItem(props: any) {
 	const [opacity] = useState(new Animated.Value(1));
