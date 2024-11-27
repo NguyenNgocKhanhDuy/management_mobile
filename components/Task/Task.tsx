@@ -12,6 +12,7 @@ interface Task {
 }
 
 export default function Task(props: any) {
+	let idProject = "1234"
 	const handleGetTaskOfProject = async () => {
 		try {
 			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/tasks/tasksOfProject/${idProject}`, {
@@ -23,22 +24,23 @@ export default function Task(props: any) {
 
 			const data = response.data;
 			if (data.status) {
-				setTasks(data.result);
+				console.log(data.result);
+				// setTasks(data.result);
 			}
 		} catch (error: any) {
 			if (error.response) {
 				console.error("Error:", error.response.data.message || error.response.data.error);
-				props.setErrorMessage(error.response.data.message || error.response.data.error);
+				// props.setErrorMessage(error.response.data.message || error.response.data.error);
 			} else if (error.request) {
 				console.error("Error:", error.request);
-				props.setErrorMessage("Failed to connect to server.");
+				// props.setErrorMessage("Failed to connect to server.");
 			} else {
 				console.error("Error:", error.message);
-				props.setErrorMessage("An unexpected error occurred: " + error.message);
+				// props.setErrorMessage("An unexpected error occurred: " + error.message);
 			}
-			props.setLoading(false);
-			props.isSelectProject();
-			props.setShowError(true);
+			// props.setLoading(false);
+			// props.isSelectProject();
+			// props.setShowError(true);
 		}
 	};
 
