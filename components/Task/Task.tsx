@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import Carousel from "pinar";
 import Board from "../Board/Board";
 import axios from "axios";
+import Constanst from "expo-constants";
 
 interface Task {
 	id: string;
@@ -12,10 +13,10 @@ interface Task {
 }
 
 export default function Task(props: any) {
-	let idProject = "1234"
+	let idProject = "1234";
 	const handleGetTaskOfProject = async () => {
 		try {
-			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/tasks/tasksOfProject/${idProject}`, {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/tasks/tasksOfProject/${idProject}`, {
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${props.token}`,
