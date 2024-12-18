@@ -6,6 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
+    "extra": {
+      "API_URL": "https://nnkd-mangement.onrender.com"
+    },
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
