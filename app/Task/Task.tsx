@@ -4,6 +4,7 @@ import Carousel from "pinar";
 import Board from "../Board/Board";
 import axios from "axios";
 import Constanst from "expo-constants";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 interface Task {
 	id: string;
@@ -102,19 +103,21 @@ export default function Task(props: any) {
 	};
 
 	return (
-		<Carousel
-			ref={carouselRef}
-			showsControls={false}
-			index={currentIndex} // Chỉ số hiện tại của carousel
-			onIndexChanged={(params) => {
-				setCurrentIndex(params.index);
-				console.log(`Carousel: Current index is ${params.index}`);
-			}} // Cập nhật chỉ số khi chuyển đổi
-		>
-			{boards.map((title) => (
-				<Board key={title} title={title} tasks={sortTaskByPosition(tasks.filter((task) => task.status === title.toLowerCase().replace(/\s+/g, "")))} onMoveRight={handleMoveRight} onMoveLeft={handleMoveLeft} onTaskDrop={handleTaskDrop} />
-			))}
-		</Carousel>
+		<GestureHandlerRootView>
+			<Carousel
+				ref={carouselRef}
+				showsControls={false}
+				index={currentIndex} // Chỉ số hiện tại của carousel
+				onIndexChanged={(params) => {
+					setCurrentIndex(params.index);
+					console.log(`Carousel: Current index is ${params.index}`);
+				}} // Cập nhật chỉ số khi chuyển đổi
+			>
+				{boards.map((title) => (
+					<Board key={title} title={title} tasks={sortTaskByPosition(tasks.filter((task) => task.status === title.toLowerCase().replace(/\s+/g, "")))} onMoveRight={handleMoveRight} onMoveLeft={handleMoveLeft} onTaskDrop={handleTaskDrop} />
+				))}
+			</Carousel>
+		</GestureHandlerRootView>
 	);
 }
 
