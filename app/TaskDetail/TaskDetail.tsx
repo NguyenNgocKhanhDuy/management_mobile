@@ -22,6 +22,7 @@ export default function TaskDetail(props: any) {
 	const [task, setTask] = useState<TaskInterface>();
 	const [creator, setCreator] = useState<UserInterface>();
 	const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
+	const [idSubtask, setIdSubtask] = useState("");
 
 	useEffect(() => {
 		handleGetTask();
@@ -35,6 +36,10 @@ export default function TaskDetail(props: any) {
 	useEffect(() => {
 		handleRenameTask();
 	}, [task?.name]);
+
+	useEffect(() => {
+		handleUpdateStatusSubTask(idSubtask, subtasks.find((st) => st.id === idSubtask)?.completed ?? false);
+	}, [idSubtask]);
 
 	const handleDateChange = (event: any, selectedDate: Date | undefined) => {
 		const currentDate = selectedDate || date;
@@ -284,7 +289,47 @@ export default function TaskDetail(props: any) {
 		}
 	};
 
+	const handleUpdateStatusSubTask = async (idSubtask: string, status: boolean) => {
+		setLoading(true);
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/subtasks/updateSubtaskStatus`,
+				{
+					id: idSubtask,
+					completed: status,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${props.token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				setSubtasks((st) => {
+					return st.filter((st) => st.id !== idSubtask);
+				});
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleCheckboxChange = (id: string) => {
+		setIdSubtask(id);
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
 
@@ -326,7 +371,7 @@ export default function TaskDetail(props: any) {
 					<View style={[styles.flexRowLayout, { marginTop: 30 }]} key={st.id}>
 						<View style={styles.flexRowItem}>
 							<Checkbox value={st.completed} onValueChange={() => handleCheckboxChange(st.id)} color={Colors.lightGreen} />
-							<Text>{st.title}</Text>
+							<TextInput value={st.title} />
 						</View>
 
 						<View style={styles.flexRowItem}>
