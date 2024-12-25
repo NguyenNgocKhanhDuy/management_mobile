@@ -252,6 +252,38 @@ export default function TaskDetail(props: any) {
 		}
 	};
 
+	const handleDeleteSubTask = async (idSubtask: string) => {
+		setLoading(true);
+		try {
+			const response = await axios.delete(`${Constanst.expoConfig?.extra?.API_URL}/subtasks/${idSubtask}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${props.token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				setSubtasks((st) => {
+					return st.filter((st) => st.id !== idSubtask);
+				});
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleCheckboxChange = (id: string) => {
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
@@ -293,13 +325,17 @@ export default function TaskDetail(props: any) {
 				{subtasks.map((st: SubtaskInterface) => (
 					<View style={[styles.flexRowLayout, { marginTop: 30 }]} key={st.id}>
 						<View style={styles.flexRowItem}>
-							<Checkbox value={st.completed} onValueChange={(id) => handleCheckboxChange(st.id)} color={Colors.lightGreen} />
+							<Checkbox value={st.completed} onValueChange={() => handleCheckboxChange(st.id)} color={Colors.lightGreen} />
 							<Text>{st.title}</Text>
 						</View>
 
 						<View style={styles.flexRowItem}>
-							<FontAwesome6 name="pen-to-square" style={styles.icon} />
-							<FontAwesome6 name="trash" style={styles.icon} />
+							<TouchableOpacity>
+								<FontAwesome6 name="pen-to-square" style={styles.icon} />
+							</TouchableOpacity>
+							<TouchableOpacity onPress={() => handleDeleteSubTask(st.id)}>
+								<FontAwesome6 name="trash" style={styles.icon} />
+							</TouchableOpacity>
 						</View>
 					</View>
 				))}
