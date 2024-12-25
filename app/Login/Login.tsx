@@ -4,6 +4,7 @@ import { loginStyles } from "./Login.style";
 import axios from 'axios';
 import { router } from "expo-router";
 import Constanst from "expo-constants";
+import { Navigation } from "react-native-navigation";
 
 
 export default function Login() {
@@ -30,7 +31,7 @@ export default function Login() {
         console.log('Login successful, token:', token);
 
         Alert.alert('Success', 'Login successful');
-        router.push("/Task/Task"); // Điều hướng đến trang Task
+        router.push("/App"); // Điều hướng đến trang Task
       } else {
         Alert.alert('Error', response.data.message || 'Login failed');
       }

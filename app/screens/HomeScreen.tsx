@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function NotificationsScreen() {
+export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>This is theNotify Screen</Text>
-    </View>
+      <Icon name="home" size={40} color="#333" />
+      </View>
   );
 }
 
