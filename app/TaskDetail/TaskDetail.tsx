@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Image, Button, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, Image, TouchableOpacity, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { styles } from "./TaskDetail.style";
 import { FontAwesome, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
@@ -23,10 +23,12 @@ export default function TaskDetail(props: any) {
 	const [creator, setCreator] = useState<UserInterface>();
 	const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
 	const [idSubtask, setIdSubtask] = useState("");
+	const [percentage, setPercentage] = useState(100);
 
 	useEffect(() => {
 		handleGetTask();
 		handleGetSubtaskByTaskId();
+		completePercentage();
 	}, [id]);
 
 	useEffect(() => {
@@ -333,6 +335,15 @@ export default function TaskDetail(props: any) {
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
 
+	const showModalRename = (idSubtask: string, type: string) => {};
+
+	const completePercentage = () => {
+		var all = subtasks.length;
+		var subtaskCompleted = subtasks.filter((t) => t.completed === true);
+		var percentageCal = ((subtaskCompleted.length / all) * 100).toFixed(2);
+		setPercentage(parseFloat(percentageCal));
+	};
+
 	return (
 		<ScrollView style={{ backgroundColor: Colors.background }}>
 			<View style={styles.container}>
@@ -361,11 +372,11 @@ export default function TaskDetail(props: any) {
 				</View>
 				<View style={styles.flexRowLayout}>
 					<Text style={styles.title}>Progress</Text>
-					<Text style={styles.title}>0%</Text>
+					<Text style={styles.title}>{percentage}</Text>
 				</View>
 				<View style={{ position: "relative" }}>
 					<View style={styles.baseProgress}></View>
-					<View style={[styles.completeProgress, { width: "50%" }]}></View>
+					<View style={[styles.completeProgress, { width: `${percentage}%` }]}></View>
 				</View>
 				{subtasks.map((st: SubtaskInterface) => (
 					<View style={[styles.flexRowLayout, { marginTop: 30 }]} key={st.id}>
