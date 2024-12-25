@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TextInput, Image, TouchableOpacity, ScrollView, Modal, Alert, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { styles } from "./TaskDetail.style";
 import { FontAwesome, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
@@ -23,7 +23,9 @@ export default function TaskDetail(props: any) {
 	const [creator, setCreator] = useState<UserInterface>();
 	const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
 	const [idSubtask, setIdSubtask] = useState("");
+	const [tempName, setTempName] = useState("");
 	const [percentage, setPercentage] = useState(100);
+	const [modalVisible, setModalVisible] = useState(false);
 
 	useEffect(() => {
 		handleGetTask();
@@ -274,6 +276,7 @@ export default function TaskDetail(props: any) {
 				setSubtasks((st) => {
 					return st.filter((st) => st.id !== idSubtask);
 				});
+				setIdSubtask("");
 				setLoading(false);
 			}
 		} catch (error: any) {
@@ -330,12 +333,52 @@ export default function TaskDetail(props: any) {
 		}
 	};
 
+	const handleUpdateTitleSubTask = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/subtasks/updateSubtaskTitle`,
+				{
+					id: idSubtask,
+					title: tempName,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${props.token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				setSubtasks((prevST) => {
+					if (!prevST) return [];
+					return prevST.map((st) => (st.id === idSubtask ? { ...st, title: tempName } : st));
+				});
+				setModalVisible(!modalVisible);
+				setIdSubtask("");
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleCheckboxChange = (id: string) => {
 		setIdSubtask(id);
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
-
-	const showModalRename = (idSubtask: string, type: string) => {};
 
 	const completePercentage = () => {
 		var all = subtasks.length;
@@ -382,11 +425,11 @@ export default function TaskDetail(props: any) {
 					<View style={[styles.flexRowLayout, { marginTop: 30 }]} key={st.id}>
 						<View style={styles.flexRowItem}>
 							<Checkbox value={st.completed} onValueChange={() => handleCheckboxChange(st.id)} color={Colors.lightGreen} />
-							<TextInput value={st.title} />
+							<Text>{st.title}</Text>
 						</View>
 
 						<View style={styles.flexRowItem}>
-							<TouchableOpacity>
+							<TouchableOpacity onPress={() => setIdSubtask(st.id)}>
 								<FontAwesome6 name="pen-to-square" style={styles.icon} />
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => handleDeleteSubTask(st.id)}>
@@ -397,6 +440,34 @@ export default function TaskDetail(props: any) {
 				))}
 			</View>
 			{loading ? <Loading /> : ""}
+			{modalVisible ? (
+				<Modal
+					animationType="slide"
+					transparent={true}
+					visible={modalVisible}
+					onRequestClose={() => {
+						Alert.alert("Modal has been closed.");
+						setModalVisible(!modalVisible);
+					}}
+				>
+					<View style={styles.centeredView}>
+						<View style={styles.modalView}>
+							<Text style={styles.modalText}>Rename</Text>
+							<View style={styles.flexRowLayout}>
+								<TextInput style={styles.input} placeholder="New Subtask Name" onChangeText={(text) => setTempName(text)} />
+								<Pressable style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={handleUpdateTitleSubTask}>
+									<Text style={styles.textStyle}>Save</Text>
+								</Pressable>
+								<Pressable style={[styles.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalVisible(!modalVisible)}>
+									<Text style={styles.textStyle}>Close</Text>
+								</Pressable>
+							</View>
+						</View>
+					</View>
+				</Modal>
+			) : (
+				""
+			)}
 		</ScrollView>
 	);
 }
