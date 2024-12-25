@@ -1,0 +1,26 @@
+export interface TaskInterface {
+	id: string;
+	name: string;
+	date: Date;
+	creator: string;
+	members: string[] | null;
+	deadline: Date;
+	status: "todo" | "in-progress" | "done";
+	position: number;
+	project: string;
+	send: boolean;
+}
+
+export interface UserInterface {
+	id: string;
+	email: string;
+	username: string;
+	avatar: string;
+}
+
+export interface SubtaskInterface {
+	id: string;
+	title: string;
+	completed: boolean;
+	task: string;
+}
