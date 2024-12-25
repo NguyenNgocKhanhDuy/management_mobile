@@ -11,6 +11,7 @@ import Constanst from "expo-constants";
 import { SubtaskInterface, TaskInterface, UserInterface } from "../../interfaces/Interface";
 import { dateShort, formatMonth } from "@/utils/date";
 import Loading from "../Loading/Loading";
+import { router } from "expo-router";
 
 export default function TaskDetail(props: any) {
 	const id = props.id;
@@ -182,6 +183,37 @@ export default function TaskDetail(props: any) {
 		}
 	};
 
+	const handleDeleteTask = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.delete(`${Constanst.expoConfig?.extra?.API_URL}/tasks/${id}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${props.token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				console.log(data.result);
+				router.push("/Task/Task");
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleCheckboxChange = (id: string) => {
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
@@ -208,7 +240,7 @@ export default function TaskDetail(props: any) {
 					<TouchableOpacity style={styles.button}>
 						<Text style={styles.buttonText}>New Subtask</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={styles.button}>
+					<TouchableOpacity style={styles.button} onPress={handleDeleteTask}>
 						<Text style={styles.buttonText}>Delete Task</Text>
 					</TouchableOpacity>
 				</View>
