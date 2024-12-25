@@ -10,6 +10,7 @@ import axios from "axios";
 import Constanst from "expo-constants";
 import { SubtaskInterface, TaskInterface, UserInterface } from "../../interfaces/Interface";
 import { dateShort, formatMonth } from "@/utils/date";
+import Loading from "../Loading/Loading";
 
 export default function TaskDetail(props: any) {
 	const id = props.id;
@@ -29,6 +30,10 @@ export default function TaskDetail(props: any) {
 	useEffect(() => {
 		handleGetUserById(task?.creator ? task.creator : "");
 	}, [task?.creator]);
+
+	useEffect(() => {
+		handleRenameTask();
+	}, [task?.name]);
 
 	const handleDateChange = (event: any, selectedDate: Date | undefined) => {
 		const currentDate = selectedDate || date;
@@ -129,6 +134,54 @@ export default function TaskDetail(props: any) {
 		}
 	};
 
+	const handleNameChange = (newName: string) => {
+		setTask((prevTask) => {
+			if (!prevTask) return undefined;
+			return {
+				...prevTask,
+				name: newName,
+			};
+		});
+	};
+
+	const handleRenameTask = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/tasks/updateTaskName`,
+				{
+					id: task?.id,
+					name: task?.name,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${props.token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				console.log(data.result);
+				setSubtasks(data.result);
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
 	const handleCheckboxChange = (id: string) => {
 		setSubtasks((prevTasks) => prevTasks.map((st) => (st.id === id ? { ...st, completed: !st.completed } : st)));
 	};
@@ -136,7 +189,7 @@ export default function TaskDetail(props: any) {
 	return (
 		<ScrollView style={{ backgroundColor: Colors.background }}>
 			<View style={styles.container}>
-				<TextInput value={task?.name} style={[styles.title, { textAlign: "center" }]} />
+				<TextInput value={task?.name} style={[styles.title, { textAlign: "center" }]} onChangeText={handleNameChange} />
 				<View style={[styles.flexRowItem, { marginBottom: 20 }]}>
 					<Image style={styles.avatar} source={creator?.avatar ? { uri: creator.avatar } : blackImg} />
 					<Text>{creator?.username}</Text>
@@ -176,11 +229,12 @@ export default function TaskDetail(props: any) {
 
 						<View style={styles.flexRowItem}>
 							<FontAwesome6 name="pen-to-square" style={styles.icon} />
-							<FontAwesome6 name="trash" e style={styles.icon} />
+							<FontAwesome6 name="trash" style={styles.icon} />
 						</View>
 					</View>
 				))}
 			</View>
+			{loading ? <Loading /> : ""}
 		</ScrollView>
 	);
 }
