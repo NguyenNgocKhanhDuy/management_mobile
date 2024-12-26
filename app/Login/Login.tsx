@@ -4,7 +4,6 @@ import { loginStyles } from "./Login.style";
 import axios from 'axios';
 import { router } from "expo-router";
 import Constanst from "expo-constants";
-import { Navigation } from "react-native-navigation";
 
 
 export default function Login() {
