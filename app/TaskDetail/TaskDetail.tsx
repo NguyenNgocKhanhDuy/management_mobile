@@ -9,7 +9,7 @@ import { Toast } from "toastify-react-native";
 import axios from "axios";
 import Constanst from "expo-constants";
 import { SubtaskInterface, TaskInterface, UserInterface } from "../../interfaces/Interface";
-import { dateShortFull } from "@/utils/date";
+import { dateShort, formatTime } from "@/utils/date";
 import Loading from "../Loading/Loading";
 import { router } from "expo-router";
 
@@ -20,6 +20,7 @@ export default function TaskDetail(props: any) {
 	const [loading, setLoading] = useState(false);
 	const [date, setDate] = useState(new Date());
 	const [showSelectDate, setShowSelectDate] = useState(false);
+	const [showSelectTime, setShowSelectTime] = useState(false);
 	const [task, setTask] = useState<TaskInterface>();
 	const [creator, setCreator] = useState<UserInterface>();
 	const [subtasks, setSubtasks] = useState<SubtaskInterface[]>([]);
@@ -53,10 +54,23 @@ export default function TaskDetail(props: any) {
 		completePercentage();
 	}, [subtasks]);
 
+	useEffect(() => {
+		console.log(date);
+		handleUpdateDeadlineTask();
+	}, [date]);
+
 	const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-		const currentDate = selectedDate || date;
-		setDate(currentDate);
-		setShowSelectDate(false);
+		setShowSelectDate(!showSelectDate);
+		if (selectedDate) {
+			setDate(selectedDate);
+		}
+	};
+
+	const handleTimeChange = (event: any, selectedDate: Date | undefined) => {
+		setShowSelectTime(!showSelectTime);
+		if (selectedDate) {
+			setDate(selectedDate);
+		}
 	};
 
 	const handleGetTask = async () => {
@@ -73,6 +87,7 @@ export default function TaskDetail(props: any) {
 			if (data.status) {
 				// console.log(data.result);
 				setTask(data.result);
+				setDate(new Date(data.result.deadline));
 				setIdCreator(data.result.creator);
 				setLoading(false);
 			}
@@ -184,6 +199,43 @@ export default function TaskDetail(props: any) {
 			if (error.response) {
 				console.error("Error:", error.response.data.message || error.response.data.error);
 				Toast.error("Rename Task: " + error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
+	const handleUpdateDeadlineTask = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/tasks/updateTaskDeadline`,
+				{
+					id: id,
+					deadline: date,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				// console.log(data.result);
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error("Delete Task: " + error.response.data.message || error.response.data.error);
 			} else if (error.request) {
 				console.error("Error:", error.request);
 				Toast.error("Failed to connect to server.");
@@ -407,7 +459,7 @@ export default function TaskDetail(props: any) {
 
 	const handleFormatDate = (dateString: string) => {
 		const date = new Date(dateString);
-		return dateShortFull(date);
+		return dateShort(date);
 	};
 
 	return (
@@ -429,14 +481,22 @@ export default function TaskDetail(props: any) {
 				</View>
 				<View style={[styles.flexRowItem, { marginLeft: 6 }]}>
 					<FontAwesome name="calendar" style={styles.icon} />
-					<Text>{handleFormatDate(task?.date ? task.date : "")}</Text>
+					<Text>{handleFormatDate(task?.date ?? "")}</Text>
 				</View>
 
-				<TouchableOpacity onPress={() => setShowSelectDate(true)} style={[styles.flexRowItem, { marginVertical: 20, marginLeft: 6 }]}>
-					<FontAwesome5 name="clock" style={styles.icon} />
-					<Text>{handleFormatDate(task?.deadline ? task.deadline : "")}</Text>
-				</TouchableOpacity>
-				{showSelectDate ? <RNDateTimePicker value={date} mode="datetime" onChange={handleDateChange} /> : ""}
+				<View style={[{ marginVertical: 20, marginLeft: 6 }]}>
+					<View style={styles.flexRowLayout}>
+						<TouchableOpacity onPress={() => setShowSelectDate(!showSelectDate)} style={styles.flexRowItem}>
+							<FontAwesome5 name="clock" style={styles.icon} />
+							<Text>{dateShort(date)}</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => setShowSelectTime(!showSelectTime)}>
+							<Text>Time: {formatTime(date)}</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+				{showSelectDate ? <RNDateTimePicker value={date} mode="date" display="default" onChange={handleDateChange} /> : ""}
+				{showSelectTime ? <RNDateTimePicker value={date} mode="time" display="default" onChange={handleTimeChange} /> : ""}
 				<View style={styles.flexRowLayout}>
 					<TouchableOpacity style={styles.button} onPress={handleAddSubTask}>
 						<Text style={styles.buttonText}>New Subtask</Text>
