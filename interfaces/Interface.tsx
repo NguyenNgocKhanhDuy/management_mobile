@@ -1,10 +1,10 @@
 export interface TaskInterface {
 	id: string;
 	name: string;
-	date: Date;
+	date: string;
 	creator: string;
 	members: string[] | null;
-	deadline: Date;
+	deadline: string;
 	status: "todo" | "in-progress" | "done";
 	position: number;
 	project: string;

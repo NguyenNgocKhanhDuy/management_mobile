@@ -14,6 +14,10 @@ export function dateShort(today: Date) {
 	return formatMonth(today) + " " + today.getDate() + ", " + today.getFullYear();
 }
 
+export function dateShortFull(today: Date) {
+	return 	`${formatMonth(today)}  ${today.getDate()}, ${today.getFullYear()}. Time: ${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+}
+
 export function formatMonth(today: Date) {
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	const month = months[today.getMonth()];

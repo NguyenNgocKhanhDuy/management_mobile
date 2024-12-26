@@ -64,7 +64,13 @@ export const styles = StyleSheet.create({
 		backgroundColor: Colors.lightGreen,
 	},
 
-	input: {},
+	input: {
+		borderWidth: 1,
+		width: 200,
+		borderColor: "#ccc",
+		padding: 10,
+		borderRadius: 5,
+	},
 
 	centeredView: {
 		flex: 1,
