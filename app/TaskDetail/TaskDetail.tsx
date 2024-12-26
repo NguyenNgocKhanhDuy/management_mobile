@@ -462,9 +462,10 @@ export default function TaskDetail(props: any) {
 		return dateShort(date);
 	};
 
-	return (
+	return loading ? (
+		<Loading />
+	) : (
 		<ScrollView style={{ flex: 1, backgroundColor: Colors.background, position: "relative" }}>
-			{loading ? <Loading /> : ""}
 			<View style={styles.container}>
 				<TouchableOpacity
 					onPress={() => {

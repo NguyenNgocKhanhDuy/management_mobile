@@ -5,7 +5,6 @@ import { Colors } from "@/assets/Colors";
 export default function Loading() {
 	return (
 		<View style={styles.container}>
-			<Text>Loading...</Text>
 			<ActivityIndicator size="large" color={Colors.lightGreen} />
 		</View>
 	);
@@ -20,7 +19,7 @@ const styles = StyleSheet.create({
 		left: 0,
 		right: 0,
 		bottom: 0,
-		backgroundColor: "transparent",
+		backgroundColor: "rgba(color: #000000, alpha: 0.6)",
 		zIndex: 9999,
 	},
 });
