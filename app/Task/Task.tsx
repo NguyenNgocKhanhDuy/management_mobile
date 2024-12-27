@@ -1,21 +1,28 @@
-import { View, StyleSheet } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Carousel from "pinar";
 import Board from "../Board/Board";
 import axios from "axios";
 import Constanst from "expo-constants";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
-interface Task {
-	id: string;
-	name: string;
-	status: string;
-	position: number;
-}
+import { taskStyles } from "./Task.styles";
+import { Toast } from "toastify-react-native";
+import Loading from "../Loading/Loading";
+import { TaskInterface } from "@/interfaces/Interface";
 
 export default function Task(props: any) {
-	let idProject = "1234";
+	const idProject = props.idProject;
+	const [loading, setLoading] = useState(false);
+	const [tasks, setTasks] = useState<TaskInterface[]>([]);
+	const boards = ["To do", "Pending", "Done"];
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const carouselRef = useRef<Carousel>(null);
+
+	useEffect(() => {
+		handleGetTaskOfProject();
+	}, [idProject]);
+
 	const handleGetTaskOfProject = async () => {
+		setLoading(true);
 		try {
 			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/tasks/tasksOfProject/${idProject}`, {
 				headers: {
@@ -27,37 +34,23 @@ export default function Task(props: any) {
 			const data = response.data;
 			if (data.status) {
 				console.log(data.result);
-				// setTasks(data.result);
+				setTasks(data.result);
+				setLoading(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
 				console.error("Error:", error.response.data.message || error.response.data.error);
-				// props.setErrorMessage(error.response.data.message || error.response.data.error);
+				Toast.error("Task: " + error.response.data.message || error.response.data.error);
 			} else if (error.request) {
 				console.error("Error:", error.request);
-				// props.setErrorMessage("Failed to connect to server.");
+				Toast.error("Failed to connect to server.");
 			} else {
 				console.error("Error:", error.message);
-				// props.setErrorMessage("An unexpected error occurred: " + error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			// props.setLoading(false);
-			// props.isSelectProject();
-			// props.setShowError(true);
+			setLoading(false);
 		}
 	};
-
-	const boards = ["To do", "Pending", "Done"];
-	const [tasks, setTasks] = useState<Task[]>([
-		{ id: "1", name: "Test 1", status: "todo", position: 0 },
-		{ id: "2", name: "Test 2", status: "pending", position: 0 },
-		{ id: "3", name: "Test 3", status: "done", position: 0 },
-		{ id: "4", name: "Test 4", status: "todo", position: 1 },
-		{ id: "5", name: "Test 5", status: "todo", position: 2 },
-		{ id: "6", name: "Test 6", status: "pending", position: 1 },
-	]);
-
-	const [currentIndex, setCurrentIndex] = useState(0); // Lưu trữ chỉ số hiện tại của carousel
-	const carouselRef = useRef<Carousel>(null);
 
 	const handleMoveRight = (taskId: string) => {
 		const newIndex = currentIndex + 1;
@@ -98,15 +91,18 @@ export default function Task(props: any) {
 		// }
 	};
 
-	const sortTaskByPosition = (tasks: Task[]) => {
+	const sortTaskByPosition = (tasks: TaskInterface[]) => {
 		return tasks.sort((a, b) => a.position - b.position);
 	};
 
-	return (
+	return loading ? (
+		<Loading />
+	) : (
 		<GestureHandlerRootView>
 			<Carousel
 				ref={carouselRef}
 				showsControls={false}
+				style={taskStyles.carousel}
 				index={currentIndex} // Chỉ số hiện tại của carousel
 				onIndexChanged={(params) => {
 					setCurrentIndex(params.index);
@@ -120,12 +116,3 @@ export default function Task(props: any) {
 		</GestureHandlerRootView>
 	);
 }
-
-const styles = StyleSheet.create({
-	carousel: {
-		height: "100%",
-		width: "100%",
-	},
-});
-
-
