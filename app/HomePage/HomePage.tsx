@@ -7,7 +7,7 @@ function HomePage() {
 	return (
 		<View style={styles.container}>
 			<Text>Home Page</Text>
-			<Button title="Go To Test" onPress={() => router.push("./TaskDetail/TaskDetail")} />
+			<Button title="Go To Test" onPress={() => router.push("./Task/Task")} />
 		</View>
 	);
 }

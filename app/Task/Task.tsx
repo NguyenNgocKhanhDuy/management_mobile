@@ -8,18 +8,42 @@ import { taskStyles } from "./Task.styles";
 import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
 import { TaskInterface } from "@/interfaces/Interface";
+import { BackHandler } from "react-native";
 
 export default function Task(props: any) {
-	const idProject = props.idProject;
+	const idProject = "66ed28755d88dd7f163a5773";
+	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUzNzM5NjcsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1MzcwMzY3fQ.D7NYKP49dxn6P9d3se0D_ysPG5d38jJdNLQphEth3UlIoERW-gX79nyW5r3uEx7k51_RsTglBg6a0nO9BWkvkg";
 	const [loading, setLoading] = useState(false);
 	const [tasks, setTasks] = useState<TaskInterface[]>([]);
 	const boards = ["To do", "Pending", "Done"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const carouselRef = useRef<Carousel>(null);
+	const [move, setMove] = useState(false);
 
 	useEffect(() => {
 		handleGetTaskOfProject();
 	}, [idProject]);
+
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+			handleBackPress();
+			return false;
+		});
+
+		return () => {
+			backHandler.remove();
+		};
+	}, [tasks, move]);
+
+	const handleBackPress = async () => {
+		if (move) {
+			console.log("yes");
+			await handleUpdateStatusAndPositionTask();
+		} else {
+			console.log("no");
+			setLoading(false);
+		}
+	};
 
 	const handleGetTaskOfProject = async () => {
 		setLoading(true);
@@ -27,7 +51,7 @@ export default function Task(props: any) {
 			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/tasks/tasksOfProject/${idProject}`, {
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${props.token}`,
+					Authorization: `Bearer ${token}`,
 				},
 			});
 
@@ -36,6 +60,49 @@ export default function Task(props: any) {
 				console.log(data.result);
 				setTasks(data.result);
 				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error("Task: " + error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
+	const handleUpdateStatusAndPositionTask = async () => {
+		setLoading(true);
+		console.log("Update");
+		console.log(tasks);
+
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/tasks/updateTaskStatusAndPosition`,
+				tasks.map((t) => ({
+					id: t.id,
+					status: t.status,
+					position: t.position,
+				})),
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				console.log(data.result);
+				// setTasks(data.result);
+				setLoading(false);
+				setMove(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -75,20 +142,23 @@ export default function Task(props: any) {
 	};
 
 	const handleTaskDrop = (taskId: string, newStatus: string) => {
+		const updatedTasks = tasks.filter((task) => task.status === newStatus);
+
+		const newPosition = updatedTasks.length + 1;
+
 		setTasks((prevTasks) =>
 			prevTasks.map((task) => {
 				if (task.id === taskId) {
-					return { ...task, status: newStatus };
+					return { ...task, status: newStatus, position: newPosition };
 				}
 				return task;
 			})
 		);
 
-		// Cập nhật currentIndex dựa vào status mới
-		// const newIndex = boards.indexOf(newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
-		// if (newIndex !== -1) {
-		// 	setCurrentIndex(newIndex);
-		// }
+		setMove(true);
+
+		// In ra thông tin vị trí mới (nếu cần debug)
+		console.log(`Task ID: ${taskId}, New Status: ${newStatus}, New Position: ${newPosition}`);
 	};
 
 	const sortTaskByPosition = (tasks: TaskInterface[]) => {

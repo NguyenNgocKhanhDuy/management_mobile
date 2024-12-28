@@ -39,10 +39,27 @@ export default function TaskItem(props: any) {
 			}
 		});
 
+		const listenerIdY = translateY.addListener(({ value }) => {
+			if (Math.abs(value) > 50 && !hasMoved) {
+				setHasMoved(true);
+				const direction = value > 0 ? "down" : "up"; // Di chuyển lên hoặc xuống
+				handlePositionChange(direction);
+			}
+		});
+
 		return () => {
 			translateX.removeListener(listenerId);
+			translateY.removeListener(listenerIdY);
 		};
-	}, [translateX, screenWidth, props, hasMoved]);
+	}, [translateX, translateY, screenWidth, props, hasMoved]);
+
+	const handlePositionChange = (direction: "up" | "down") => {
+		if (direction === "up") {
+			props.onMoveUp(props.task.id); // Gọi hàm onMoveUp khi kéo lên
+		} else if (direction === "down") {
+			props.onMoveDown(props.task.id); // Gọi hàm onMoveDown khi kéo xuống
+		}
+	};
 
 	const onHandlerStateChange = useCallback(
 		(event: any) => {
