@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Animated, Text, Dimensions, View, Image } from "react-native";
+import { Animated, Text, Dimensions, View, Image, TouchableOpacity } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { taskItemStyles } from "./TaskItem.styles";
 import { FontAwesome } from "@expo/vector-icons";
@@ -39,10 +39,27 @@ export default function TaskItem(props: any) {
 			}
 		});
 
+		const listenerIdY = translateY.addListener(({ value }) => {
+			if (Math.abs(value) > 50 && !hasMoved) {
+				setHasMoved(true);
+				const direction = value > 0 ? "down" : "up"; // Di chuyển lên hoặc xuống
+				handlePositionChange(direction);
+			}
+		});
+
 		return () => {
 			translateX.removeListener(listenerId);
+			translateY.removeListener(listenerIdY);
 		};
-	}, [translateX, screenWidth, props, hasMoved]);
+	}, [translateX, translateY, screenWidth, props, hasMoved]);
+
+	const handlePositionChange = (direction: "up" | "down") => {
+		if (direction === "up") {
+			props.onMoveUp(props.task.id); // Gọi hàm onMoveUp khi kéo lên
+		} else if (direction === "down") {
+			props.onMoveDown(props.task.id); // Gọi hàm onMoveDown khi kéo xuống
+		}
+	};
 
 	const onHandlerStateChange = useCallback(
 		(event: any) => {
@@ -83,7 +100,7 @@ export default function TaskItem(props: any) {
 
 	return (
 		<PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
-			<Animated.View style={[taskItemStyles.taskItem, { opacity, transform: [{ translateX }, { translateY }] }, taskItemStyles.container]}>
+			<Animated.View style={[taskItemStyles.taskItem, { width: "100%", opacity, transform: [{ translateX }, { translateY }] }, taskItemStyles.container]}>
 				<View style={taskItemStyles.date}>
 					<FontAwesome name="calendar" style={taskItemStyles.dateText} />
 					<Text style={taskItemStyles.dateText}>September 20</Text>

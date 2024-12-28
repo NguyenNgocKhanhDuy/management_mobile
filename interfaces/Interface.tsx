@@ -5,7 +5,7 @@ export interface TaskInterface {
 	creator: string;
 	members: string[] | null;
 	deadline: string;
-	status: "todo" | "in-progress" | "done";
+	status: string;
 	position: number;
 	project: string;
 	send: boolean;
