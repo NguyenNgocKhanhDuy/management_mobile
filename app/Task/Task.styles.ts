@@ -13,7 +13,7 @@ export const taskStyles = StyleSheet.create({
 		height: 60,
 		zIndex: 999,
 		paddingHorizontal: 12,
-		backgroundColor: "rgba(0, 0, 0, 0.3)",
+		backgroundColor: "rgba(0, 0, 0, 0.8)",
 	},
 
 	flexRowLayout: {
@@ -27,10 +27,12 @@ export const taskStyles = StyleSheet.create({
 		fontSize: 24,
 		lineHeight: 60,
 		marginLeft: 30,
+		color: "#fff",
 	},
 
 	icon: {
 		fontSize: 20,
 		lineHeight: 60,
+		color: "#fff",
 	},
 });
