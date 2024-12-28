@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Animated, Text, Dimensions, View, Image } from "react-native";
+import { Animated, Text, Dimensions, View, Image, TouchableOpacity } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { taskItemStyles } from "./TaskItem.styles";
 import { FontAwesome } from "@expo/vector-icons";
@@ -100,7 +100,7 @@ export default function TaskItem(props: any) {
 
 	return (
 		<PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
-			<Animated.View style={[taskItemStyles.taskItem, { opacity, transform: [{ translateX }, { translateY }] }, taskItemStyles.container]}>
+			<Animated.View style={[taskItemStyles.taskItem, { width: "100%", opacity, transform: [{ translateX }, { translateY }] }, taskItemStyles.container]}>
 				<View style={taskItemStyles.date}>
 					<FontAwesome name="calendar" style={taskItemStyles.dateText} />
 					<Text style={taskItemStyles.dateText}>September 20</Text>

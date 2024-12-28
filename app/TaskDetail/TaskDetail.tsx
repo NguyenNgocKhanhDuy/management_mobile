@@ -12,10 +12,14 @@ import { SubtaskInterface, TaskInterface, UserInterface } from "../../interfaces
 import { dateShort, formatTime } from "@/utils/date";
 import Loading from "../Loading/Loading";
 import { router } from "expo-router";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 export default function TaskDetail(props: any) {
-	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUxODI0NzcsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1MTc4ODc3fQ.9NwfcxfzrQxb11tHT8-DL_Of19Tv5qd_Xb61U5l9KGOztLOlRIdYvzxb7tz1HFF1XlWdkv_w2bV4wSSpWdD3mQ";
-	const id = "66ed28835d88dd7f163a5774";
+	// const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUxODI0NzcsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1MTc4ODc3fQ.9NwfcxfzrQxb11tHT8-DL_Of19Tv5qd_Xb61U5l9KGOztLOlRIdYvzxb7tz1HFF1XlWdkv_w2bV4wSSpWdD3mQ";
+	const token = useSelector((state: RootState) => state.user.token);
+	// const id = "66ed28835d88dd7f163a5774";
+	const id = useSelector((state: RootState) => state.task.id);
 	const blackImg = require("../../assets/images/black.jpg");
 	const [loading, setLoading] = useState(false);
 	const [date, setDate] = useState(new Date());

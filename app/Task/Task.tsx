@@ -9,16 +9,22 @@ import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
 import { TaskInterface } from "@/interfaces/Interface";
 import { BackHandler } from "react-native";
+import { router } from "expo-router";
+import { useDispatch } from "react-redux";
+import { setTaskId } from "@/store/TaskSlice";
+import { setToken } from "@/store/UserSlice";
 
 export default function Task(props: any) {
 	const idProject = "66ed28755d88dd7f163a5773";
-	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUzNzM5NjcsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1MzcwMzY3fQ.D7NYKP49dxn6P9d3se0D_ysPG5d38jJdNLQphEth3UlIoERW-gX79nyW5r3uEx7k51_RsTglBg6a0nO9BWkvkg";
+	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUzOTAwNDksImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1Mzg2NDQ5fQ.o-wqygb2BraAsNzQsBrvRIdLGLd4ReM70gupRlMF7vvqooL-9JzHEqzSwf5ErZ-in3SEWaWs6qe7-T70_Lg3tw";
 	const [loading, setLoading] = useState(false);
 	const [tasks, setTasks] = useState<TaskInterface[]>([]);
 	const boards = ["To do", "Pending", "Done"];
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const carouselRef = useRef<Carousel>(null);
 	const [move, setMove] = useState(false);
+	const [taskId, settaskId] = useState("");
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		handleGetTaskOfProject();
@@ -35,12 +41,18 @@ export default function Task(props: any) {
 		};
 	}, [tasks, move]);
 
+	useEffect(() => {
+		if (taskId != "") {
+			dispatch(setTaskId(taskId));
+			dispatch(setToken(token));
+			router.navigate("/TaskDetail/TaskDetail");
+		}
+	}, [taskId]);
+
 	const handleBackPress = async () => {
 		if (move) {
-			console.log("yes");
 			await handleUpdateStatusAndPositionTask();
 		} else {
-			console.log("no");
 			setLoading(false);
 		}
 	};
@@ -179,8 +191,8 @@ export default function Task(props: any) {
 					console.log(`Carousel: Current index is ${params.index}`);
 				}} // Cập nhật chỉ số khi chuyển đổi
 			>
-				{boards.map((title) => (
-					<Board key={title} title={title} tasks={sortTaskByPosition(tasks.filter((task) => task.status === title.toLowerCase().replace(/\s+/g, "")))} onMoveRight={handleMoveRight} onMoveLeft={handleMoveLeft} onTaskDrop={handleTaskDrop} />
+				{boards.map((title, index) => (
+					<Board key={index} title={title} tasks={sortTaskByPosition(tasks.filter((task) => task.status === title.toLowerCase().replace(/\s+/g, "")))} onMoveRight={handleMoveRight} onMoveLeft={handleMoveLeft} onTaskDrop={handleTaskDrop} setTaskId={(id: string) => settaskId(id)} />
 				))}
 			</Carousel>
 		</GestureHandlerRootView>

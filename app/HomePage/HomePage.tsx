@@ -1,7 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
-import TaskDetail from "./../TaskDetail/TaskDetail";
 
 function HomePage() {
 	return (
