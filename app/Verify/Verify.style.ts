@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-export const registerStyles = StyleSheet.create({
+export const verifyStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
