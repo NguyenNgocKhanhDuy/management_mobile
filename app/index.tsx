@@ -1,6 +1,5 @@
-import HomePage from "./HomePage/HomePage";
-import Task from "./Task/Task";
+import Login from "./Login/Login";
 
 export default function IndexScreen() {
-	return <Task />;
+	return <Login />;
 }

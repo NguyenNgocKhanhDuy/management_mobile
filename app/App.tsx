@@ -6,14 +6,19 @@ import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import AccountScreen from './screens/AccountScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
+  const { token } = useLocalSearchParams(); // Lấy tham số từ router
+
+
 
   const renderScreen = () => {
     switch (activeTab) {
       case 'Home':
-        return <HomeScreen />;
+        return <HomeScreen token={token as string}/>;
       case 'Search':
         return <SearchScreen />;
       case 'Notifications':
@@ -21,15 +26,19 @@ const App = () => {
       case 'Account':
         return <AccountScreen />;
       default:
-        return <HomeScreen />;
+        return <HomeScreen token={token as string}/>;
     }
   };
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+
     <View style={styles.container}>
       {renderScreen()}
       <BottomNavBar activeTab={activeTab} setActiveTab={setActiveTab} />
     </View>
+    </GestureHandlerRootView>
+
   );
 };
 
