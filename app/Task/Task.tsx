@@ -8,11 +8,12 @@ import { taskStyles } from "./Task.styles";
 import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
 import { TaskInterface } from "@/interfaces/Interface";
-import { BackHandler } from "react-native";
+import { BackHandler, TouchableOpacity, View, Text } from "react-native";
 import { router } from "expo-router";
 import { useDispatch } from "react-redux";
 import { setTaskId } from "@/store/TaskSlice";
 import { setToken } from "@/store/UserSlice";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 export default function Task(props: any) {
 	const idProject = "66ed28755d88dd7f163a5773";
@@ -181,6 +182,25 @@ export default function Task(props: any) {
 		<Loading />
 	) : (
 		<GestureHandlerRootView>
+			<View style={[taskStyles.flexRowLayout, taskStyles.topBar]}>
+				<View style={taskStyles.flexRowLayout}>
+					<TouchableOpacity>
+						<FontAwesome6 name="xmark" style={taskStyles.icon} />
+					</TouchableOpacity>
+					<Text style={taskStyles.text}>Project name</Text>
+				</View>
+				<View style={[taskStyles.flexRowLayout, { gap: 30 }]}>
+					<TouchableOpacity>
+						<FontAwesome6 name="bell" style={taskStyles.icon} />
+					</TouchableOpacity>
+					<TouchableOpacity>
+						<FontAwesome6 name="user-plus" style={taskStyles.icon} />
+					</TouchableOpacity>
+					<TouchableOpacity>
+						<FontAwesome6 name="ellipsis" style={taskStyles.icon} />
+					</TouchableOpacity>
+				</View>
+			</View>
 			<Carousel
 				ref={carouselRef}
 				showsControls={false}

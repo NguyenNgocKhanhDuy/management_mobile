@@ -1,9 +1,9 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
 import { boardStyles } from "./Board.styles";
 import TaskItem from "../TaskItem/TaskItem";
-import { TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { TaskInterface } from "@/interfaces/Interface";
+import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 
 type Status = "todo" | "pending" | "done";
 
@@ -50,23 +50,25 @@ export default function Board(props: any) {
 	};
 
 	return (
-		<View style={[boardStyles.board, statusStyle]}>
-			<Text style={boardStyles.title}>{props.title}</Text>
-			<ScrollView style={{ width: "100%" }}>
-				{props.tasks.map((task: TaskInterface) => (
-					<Pressable style={{ width: "100%", transform: [{ translateX: -11 }] }} onPress={() => props.setTaskId(task.id)}>
-						<TaskItem
-							key={task.id}
-							task={task}
-							onDrop={handleTaskDrop}
-							onMoveUp={handleMoveUp} // Truyền hàm moveUp cho TaskItem
-							onMoveDown={handleMoveDown} // Truyền hàm moveDown cho TaskItem
-							onMoveRight={props.onMoveRight} // Truyền hàm moveRight cho TaskItem
-							onMoveLeft={props.onMoveLeft} // Truyền hàm moveLeft cho TaskItem
-						/>
-					</Pressable>
-				))}
-			</ScrollView>
+		<View>
+			<View style={[boardStyles.board, statusStyle]}>
+				<Text style={boardStyles.title}>{props.title}</Text>
+				<ScrollView style={{ width: "100%" }}>
+					{props.tasks.map((task: TaskInterface) => (
+						<Pressable style={{ width: "100%", transform: [{ translateX: -11 }] }} onPress={() => props.setTaskId(task.id)}>
+							<TaskItem
+								key={task.id}
+								task={task}
+								onDrop={handleTaskDrop}
+								onMoveUp={handleMoveUp} // Truyền hàm moveUp cho TaskItem
+								onMoveDown={handleMoveDown} // Truyền hàm moveDown cho TaskItem
+								onMoveRight={props.onMoveRight} // Truyền hàm moveRight cho TaskItem
+								onMoveLeft={props.onMoveLeft} // Truyền hàm moveLeft cho TaskItem
+							/>
+						</Pressable>
+					))}
+				</ScrollView>
+			</View>
 		</View>
 	);
 }
