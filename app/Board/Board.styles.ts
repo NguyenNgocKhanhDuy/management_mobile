@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const boardStyles = StyleSheet.create({
 	board: {
-		width: "100%",
+		width: "80%",
 		height: "auto",
 		alignItems: "center",
 		justifyContent: "center",
@@ -10,7 +10,9 @@ export const boardStyles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: "#ccc",
 		borderRadius: 10,
+		marginTop: 80,
 		padding: 20,
+		marginHorizontal: "auto",
 	},
 
 	todo: {

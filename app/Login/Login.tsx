@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { loginStyles } from "./Login.style";
-import axios from 'axios';
 import { router } from "expo-router";
+import axios from 'axios';
 import Constanst from "expo-constants";
-import { Navigation } from "react-native-navigation";
 
 
 export default function Login() {
@@ -29,9 +28,11 @@ export default function Login() {
       if (response.data.status) {
         const token = response.data.result.token;
         console.log('Login successful, token:', token);
-
         Alert.alert('Success', 'Login successful');
-        router.push("/App"); // Điều hướng đến trang Task
+        router.push({
+          pathname: '/App',
+          params: { token: token },
+        });; 
       } else {
         Alert.alert('Error', response.data.message || 'Login failed');
       }
