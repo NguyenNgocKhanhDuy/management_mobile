@@ -11,6 +11,7 @@ import Constanst from "expo-constants";
 import { Colors } from "@/assets/Colors";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { router } from "expo-router";
 
 export default function Members() {
 	const blackImg = require("@/assets/images/black.jpg");
@@ -204,7 +205,7 @@ export default function Members() {
 	) : (
 		<View style={membersStyle.container}>
 			<View style={[membersStyle.topBar]}>
-				<TouchableOpacity style={{ position: "absolute", left: 10 }}>
+				<TouchableOpacity onPress={() => router.back()} style={{ position: "absolute", left: 10 }}>
 					<FontAwesome6 name="xmark" style={[membersStyle.icon, { color: "#fff", lineHeight: 60 }]} />
 				</TouchableOpacity>
 				<View style={{ marginHorizontal: "auto", transform: [{ translateX: -12 }] }}>

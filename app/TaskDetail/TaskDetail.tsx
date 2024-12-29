@@ -471,6 +471,11 @@ export default function TaskDetail(props: any) {
 	) : (
 		<ScrollView style={{ flex: 1, backgroundColor: Colors.background, position: "relative" }}>
 			<View style={styles.container}>
+				<View>
+					<TouchableOpacity onPress={() => router.back()}>
+						<FontAwesome6 style={[styles.icon, { marginLeft: 5, marginTop: 10 }]} name="xmark" />
+					</TouchableOpacity>
+				</View>
 				<TouchableOpacity
 					onPress={() => {
 						setModalVisible(!modalVisible);

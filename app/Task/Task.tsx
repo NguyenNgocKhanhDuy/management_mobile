@@ -192,7 +192,7 @@ export default function Task(props: any) {
 		<GestureHandlerRootView>
 			<View style={[taskStyles.flexRowLayout, taskStyles.topBar]}>
 				<View style={taskStyles.flexRowLayout}>
-					<TouchableOpacity>
+					<TouchableOpacity onPress={() => router.back()}>
 						<FontAwesome6 name="xmark" style={taskStyles.icon} />
 					</TouchableOpacity>
 					<Text style={taskStyles.text}>Project name</Text>
