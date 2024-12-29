@@ -1,10 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView, ScrollView, TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import  Constanst  from 'expo-constants';
 import { Constants } from 'react-native-navigation';
+import { Modal } from 'react-native';
 interface Project {
   id: string;
   name: string;
@@ -25,6 +26,9 @@ export default function HomeScreen({ token }: HomeScreenProps) {
     require('../../assets/images/b3.jpg'),
     require('../../assets/images/b4.jpg'),
   ];
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -46,7 +50,42 @@ export default function HomeScreen({ token }: HomeScreenProps) {
       Alert.alert('Error', 'An error occurred while fetching projects');
     }
   };
+  const handleCreateProject = async () => {
+    if (!newProjectName.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập tên project');
+      return;
+    }
 
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `${Constanst.expoConfig?.extra?.API_URL}/projects/addProject`,
+        {
+          name: newProjectName.trim()
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.status) {
+        Alert.alert('Thành công', 'Đã tạo project mới');
+        setNewProjectName('');
+        setIsModalVisible(false);
+        fetchProjects(); // Refresh danh sách
+      } else {
+        Alert.alert('Lỗi', 'Không thể tạo project');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tạo project');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Gọi API khi component được render
   useEffect(() => {
     fetchProjects();
@@ -54,7 +93,6 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 
  
   useEffect(() => {
-    console.log('Projects:', projects); // Thêm dòng này
   }, [projects]);
   
   const filteredProjects = projects.filter(project =>
@@ -68,7 +106,7 @@ export default function HomeScreen({ token }: HomeScreenProps) {
         <View style={styles.titleContainer}>
           <Icon name="tablet-landscape" size={25} style={styles.titleIcon} />
           <Text style={styles.title}>My boards</Text>
-          <Icon name="add" size={25} style={styles.addIcon} />
+          <Icon name="add" size={25} style={styles.addIcon} onPress={() => setIsModalVisible(true)}/>
         </View>
   
         <View style={styles.inputContainer}>
@@ -93,6 +131,54 @@ export default function HomeScreen({ token }: HomeScreenProps) {
             </ImageBackground>
           );
         })}
+
+<Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Tạo Project Mới</Text>
+                <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+                  <Icon name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nhập tên project"
+                value={newProjectName}
+                onChangeText={setNewProjectName}
+                placeholderTextColor="#666"
+              />
+
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity 
+                  style={styles.cancelButton} 
+                  onPress={() => setIsModalVisible(false)}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.buttonText}>Hủy</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.createButton}
+                  onPress={handleCreateProject}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Tạo Project</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </GestureHandlerRootView>
   );
@@ -181,6 +267,60 @@ const styles = StyleSheet.create({
       position: 'absolute',
       right: 0,
       fontWeight: 'bold'
+    },
+    modalBackground: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      width: '80%',
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      padding: 20,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#333',
+    },
+    modalInput: {
+      borderWidth: 1,
+      borderColor: '#ddd',
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 20,
+      color: '#333',
+    },
+    modalButtonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: 10,
+    },
+    createButton: {
+      backgroundColor: '#2196F3',
+      padding: 10,
+      borderRadius: 5,
+      minWidth: 100,
+      alignItems: 'center',
+    },
+    cancelButton: {
+      backgroundColor: '#666',
+      padding: 10,
+      borderRadius: 5,
+      minWidth: 100,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: '#fff',
+      fontWeight: 'bold',
     },
   });
   
