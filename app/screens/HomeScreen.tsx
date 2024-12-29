@@ -52,8 +52,14 @@ export default function HomeScreen({ token }: HomeScreenProps) {
     fetchProjects();
   }, []);
 
-
-
+ 
+  useEffect(() => {
+    console.log('Projects:', projects); // Thêm dòng này
+  }, [projects]);
+  
+  const filteredProjects = projects.filter(project =>
+    project?.name?.trim()?.toLowerCase()?.includes(searchText?.trim()?.toLowerCase() || '')
+  );
 
 
   return (
@@ -67,20 +73,19 @@ export default function HomeScreen({ token }: HomeScreenProps) {
   
         <View style={styles.inputContainer}>
           <Icon name="search" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Bảng" />
+          <TextInput style={styles.input} placeholder="Bảng" value={searchText} onChangeText={(text) => setSearchText(text)}/>
         </View>
   
         <View style={styles.contentContainer}>
           <Text style={styles.headingText}>Danh sách bảng của bạn</Text>
         </View>
   
-        {projects.map((project, index) => {
-          // Chọn ảnh ngẫu nhiên từ mảng
+        {filteredProjects.map((project, index) => {
           const randomImage = images[index % images.length];
           return (
             <ImageBackground
               key={project.id}
-              source={randomImage} // Ảnh được gán cho từng dự án
+              source={randomImage}
               style={styles.boardContainer}
               imageStyle={styles.image}
             >
