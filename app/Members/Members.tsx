@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { membersStyle } from "./Members.style";
@@ -7,17 +7,23 @@ import axios from "axios";
 import debounce from "lodash.debounce";
 import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
+import Constanst from "expo-constants";
+import { Colors } from "@/assets/Colors";
 
 export default function Members(props: any) {
 	const blackImg = require("@/assets/images/black.jpg");
-	const idProject = "";
-	const token = "";
+	const idProject = "66ed28755d88dd7f163a5773";
+	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzU0NzQ4MzEsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1NDcxMjMxfQ.riDUtxLCi73F7AdDLJca_scp_SEvT-r9fDvr9-AeC0x2l8l4uIoSPO34YU1HUJEBE0kIg2avfMHJAJLigHQTIQ";
 	const [loading, setLoading] = useState(false);
 	const debouncedSearchRef = useRef<any>(null);
 	const [users, setUsers] = useState<UserInterface[]>([]);
 	const [usersId, setUsersId] = useState<string[]>([]);
+	const [pendingId, setPendingId] = useState<string[]>([]);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [selectUser, setSelectUser] = useState<UserInterface>();
 
 	useEffect(() => {
+		setLoading(true);
 		handleGetProject();
 	}, []);
 
@@ -27,14 +33,17 @@ export default function Members(props: any) {
 
 	if (!debouncedSearchRef.current) {
 		debouncedSearchRef.current = debounce((nextValue: string) => {
-			handleSearch(nextValue);
+			if (nextValue.length > 0) {
+				handleSearch(nextValue);
+			} else {
+				handleGetProject();
+			}
 		}, 300);
 	}
 
 	const handleSearch = async (email: string) => {
-		setLoading(true);
 		try {
-			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/searchNotInProject`, {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/searchNotInProject`, {
 				params: {
 					email: email,
 					idProject: idProject,
@@ -61,18 +70,16 @@ export default function Members(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
 		}
 	};
 
-	const handleOnChange = (event: any) => {
-		debouncedSearchRef.current(event.target.value);
+	const handleOnChange = (text: string) => {
+		debouncedSearchRef.current(text);
 	};
 
 	const handleGetProject = async () => {
-		setLoading(true);
 		try {
-			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/projects/${idProject}`, {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/${idProject}`, {
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${token}`,
@@ -81,9 +88,10 @@ export default function Members(props: any) {
 
 			const data = response.data;
 			if (data.status) {
-				setUsersId((prevUser) => {
-					return [...prevUser, data.result.creator, data.result.members, data.result.pending];
+				setUsersId(() => {
+					return [data.result.creator, ...data.result.members, ...data.result.pending];
 				});
+
 				setLoading(false);
 			}
 		} catch (error: any) {
@@ -102,19 +110,16 @@ export default function Members(props: any) {
 	};
 
 	const handleGetAllUsers = async () => {
-		setLoading(true);
 		if (usersId.length > 0) {
 			const usersPromise = usersId.map((id: string) => handleGetUserById(id));
 			const allUsers = await Promise.all(usersPromise);
 			setUsers(allUsers);
 		}
-		setLoading(false);
 	};
 
 	const handleGetUserById = async (id: string) => {
-		console.log(id);
 		try {
-			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/${id}`, {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/${id}`, {
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${token}`,
@@ -124,6 +129,49 @@ export default function Members(props: any) {
 			const data = response.data;
 			if (data.status) {
 				return data.result;
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+		}
+	};
+
+	const handleAddMember = async () => {
+		setLoading(true);
+		var updatePending;
+		if (pendingId != null) {
+			updatePending = [...pendingId, selectUser?.id];
+		} else {
+			updatePending = [selectUser?.id];
+		}
+
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/projects/addUserIntoPending`,
+				{
+					id: idProject,
+					pending: updatePending,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+			const data = response.data;
+			if (data.status) {
+				handleGetProject();
+				Toast.success("Mail sent successfully");
+				setLoading(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -156,26 +204,57 @@ export default function Members(props: any) {
 				<TextInput style={membersStyle.input} placeholder="Enter Email" onChangeText={handleOnChange} />
 				<ScrollView style={{ marginTop: 30 }}>
 					{users.map((u) => (
-						<TouchableOpacity style={[membersStyle.flexRowLayout, membersStyle.box]}>
-							<View key={u.id} style={[membersStyle.flexRowItem]}>
+						<TouchableOpacity
+							key={u.id}
+							onPress={() => {
+								setSelectUser(u);
+								setModalVisible(!modalVisible);
+							}}
+							style={[membersStyle.flexRowLayout, membersStyle.box]}
+						>
+							<View style={[membersStyle.flexRowItem]}>
 								<Image source={u?.avatar ? { uri: u.avatar } : blackImg} style={membersStyle.image} />
 								<View>
 									<Text style={membersStyle.text}>{u.username}</Text>
 									<Text style={membersStyle.text}>{u.email}</Text>
 								</View>
 							</View>
-							<View style={[membersStyle.flexRowItem]}>
-								<TouchableOpacity>
-									<FontAwesome6 name="plus" style={membersStyle.icon} />
-								</TouchableOpacity>
-								<TouchableOpacity>
-									<FontAwesome6 name="trash" style={[membersStyle.icon]} />
-								</TouchableOpacity>
-							</View>
 						</TouchableOpacity>
 					))}
 				</ScrollView>
 			</View>
+			{modalVisible ? (
+				<Modal
+					animationType="slide"
+					transparent={true}
+					visible={modalVisible}
+					onRequestClose={() => {
+						Alert.alert("Modal has been closed.");
+						setModalVisible(!modalVisible);
+					}}
+				>
+					<View style={membersStyle.centeredView}>
+						<View style={membersStyle.modalView}>
+							<Text style={membersStyle.modalText}>Information</Text>
+							<View>
+								<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={membersStyle.modalImage} />
+								<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
+								<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
+							</View>
+							<View style={[membersStyle.flexRowLayout, { gap: 60, marginTop: 30 }]}>
+								<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGreen }]} onPress={handleAddMember}>
+									<Text style={membersStyle.textStyle}>Invite</Text>
+								</Pressable>
+								<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalVisible(!modalVisible)}>
+									<Text style={membersStyle.textStyle}>Close</Text>
+								</Pressable>
+							</View>
+						</View>
+					</View>
+				</Modal>
+			) : (
+				""
+			)}
 		</View>
 	);
 }
