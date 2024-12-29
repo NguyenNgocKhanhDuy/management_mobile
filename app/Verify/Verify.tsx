@@ -53,25 +53,25 @@ export default function VerifyEmailScreen() {
 
  
   const handleResendCode = async () => {
-    setIsResending(true);
+    setIsResending(true); // Đặt trạng thái gửi lại mã
     try {
       const response = await axios.post(
-        `${Constanst.expoConfig?.extra?.API_URL}/auth/resend-code`,
+        `${Constanst.expoConfig?.extra?.API_URL}/users/sendCodeToUser`, // Endpoint phù hợp
         {
-          email: "hoangson145juzk@gmail.com", // Thay thế bằng email thực tế
+          email: "hoangson145juzk@gmail.com", // Thay thế bằng email người dùng thực tế
         }
       );
-
+  
       if (response.data.status) {
-        Alert.alert("Success", "Verification code resent successfully!");
+        Alert.alert("Success", response.data.result || "Verification code resent successfully!"); // Thông báo từ API
       } else {
-        Alert.alert("Error", response.data.message || "Failed to resend code.");
+        Alert.alert("Error", "Failed to resend code."); // Thông báo lỗi nếu `status` là `false`
       }
     } catch (error) {
       console.error("Error resending code:", error);
-      Alert.alert("Error", "An error occurred while resending the code.");
+      Alert.alert("Error", "An error occurred while resending the code."); // Xử lý lỗi kết nối hoặc server
     } finally {
-      setIsResending(false);
+      setIsResending(false); // Kết thúc trạng thái gửi lại mã
     }
   };
 
