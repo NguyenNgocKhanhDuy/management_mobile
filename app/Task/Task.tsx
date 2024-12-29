@@ -11,9 +11,10 @@ import { TaskInterface } from "@/interfaces/Interface";
 import { BackHandler, TouchableOpacity, View, Text } from "react-native";
 import { router } from "expo-router";
 import { useDispatch } from "react-redux";
-import { setTaskId } from "@/store/TaskSlice";
+import { setIdProject, setTaskId } from "@/store/TaskSlice";
 import { setToken } from "@/store/UserSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
+import Members from "./../Members/Members";
 
 export default function Task(props: any) {
 	const idProject = "66ed28755d88dd7f163a5773";
@@ -178,6 +179,12 @@ export default function Task(props: any) {
 		return tasks.sort((a, b) => a.position - b.position);
 	};
 
+	const handleNavigateToMembers = () => {
+		dispatch(setIdProject(idProject));
+		dispatch(setToken(token));
+		router.navigate("./Members/Members");
+	};
+
 	return loading ? (
 		<Loading />
 	) : (
@@ -193,7 +200,7 @@ export default function Task(props: any) {
 					<TouchableOpacity>
 						<FontAwesome6 name="bell" style={taskStyles.icon} />
 					</TouchableOpacity>
-					<TouchableOpacity>
+					<TouchableOpacity onPress={handleNavigateToMembers}>
 						<FontAwesome6 name="user-plus" style={taskStyles.icon} />
 					</TouchableOpacity>
 					<TouchableOpacity>

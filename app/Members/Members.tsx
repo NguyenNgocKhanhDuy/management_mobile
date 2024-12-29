@@ -9,11 +9,15 @@ import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
 import Constanst from "expo-constants";
 import { Colors } from "@/assets/Colors";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
-export default function Members(props: any) {
+export default function Members() {
 	const blackImg = require("@/assets/images/black.jpg");
-	const idProject = "66ed28755d88dd7f163a5773";
-	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzU0Nzg5ODAsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1NDc1MzgwfQ.QfWM8zia7XJvsYJHGu3nNj3A5WWuEzUEEMogmJmI8sl2L1gHu8Ao6IBvY_pfkMaPbrHnjs5x-56g7HzGkB_zzg";
+	// const idProject = "66ed28755d88dd7f163a5773";
+	const idProject = useSelector((state: RootState) => state.task.idProject);
+	// const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzU0Nzg5ODAsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1NDc1MzgwfQ.QfWM8zia7XJvsYJHGu3nNj3A5WWuEzUEEMogmJmI8sl2L1gHu8Ao6IBvY_pfkMaPbrHnjs5x-56g7HzGkB_zzg";
+	const token = useSelector((state: RootState) => state.user.token);
 	const [loading, setLoading] = useState(false);
 	const debouncedSearchRef = useRef<any>(null);
 	const [users, setUsers] = useState<UserInterface[]>([]);
@@ -227,7 +231,7 @@ export default function Members(props: any) {
 								</View>
 							</View>
 							<View>
-								<Text style={[membersStyle.text, {lineHeight: 40}]}>{u.id == creatorId ? "Creator" : membersId.some((m) => m == u.id) ? "Member" : pendingId.some((p) => p == u.id) ? "Pending" : ""}</Text>
+								<Text style={[membersStyle.text, { lineHeight: 40 }]}>{u.id == creatorId ? "Creator" : membersId.some((m) => m == u.id) ? "Member" : pendingId.some((p) => p == u.id) ? "Pending" : ""}</Text>
 							</View>
 						</TouchableOpacity>
 					))}
