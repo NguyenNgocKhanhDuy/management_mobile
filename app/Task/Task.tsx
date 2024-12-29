@@ -10,15 +10,16 @@ import Loading from "../Loading/Loading";
 import { TaskInterface } from "@/interfaces/Interface";
 import { BackHandler, TouchableOpacity, View, Text } from "react-native";
 import { router } from "expo-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setIdProject, setTaskId } from "@/store/TaskSlice";
 import { setToken } from "@/store/UserSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
-import Members from "./../Members/Members";
+import { RootState } from "@/store/store";
 
 export default function Task(props: any) {
-	const idProject = "66ed28755d88dd7f163a5773";
-	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzUzOTAwNDksImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1Mzg2NDQ5fQ.o-wqygb2BraAsNzQsBrvRIdLGLd4ReM70gupRlMF7vvqooL-9JzHEqzSwf5ErZ-in3SEWaWs6qe7-T70_Lg3tw";
+	// const idProject = "66ed28755d88dd7f163a5773";
+	const idProject = useSelector((state: RootState) => state.task.idProject);
+	const token = useSelector((state: RootState) => state.user.token);
 	const [loading, setLoading] = useState(false);
 	const [tasks, setTasks] = useState<TaskInterface[]>([]);
 	const boards = ["To do", "Pending", "Done"];
@@ -182,7 +183,7 @@ export default function Task(props: any) {
 	const handleNavigateToMembers = () => {
 		dispatch(setIdProject(idProject));
 		dispatch(setToken(token));
-		router.navigate("./Members/Members");
+		router.navigate("/Members/Members");
 	};
 
 	return loading ? (
