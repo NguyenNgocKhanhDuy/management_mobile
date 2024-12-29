@@ -1,11 +1,12 @@
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { membersStyle } from "./Members.style";
 import { UserInterface } from "@/interfaces/Interface";
 import axios from "axios";
 import debounce from "lodash.debounce";
 import { Toast } from "toastify-react-native";
+import Loading from "../Loading/Loading";
 
 export default function Members(props: any) {
 	const blackImg = require("@/assets/images/black.jpg");
@@ -13,8 +14,16 @@ export default function Members(props: any) {
 	const token = "";
 	const [loading, setLoading] = useState(false);
 	const debouncedSearchRef = useRef<any>(null);
-	const [members, setMembers] = useState<UserInterface[]>([]);
 	const [users, setUsers] = useState<UserInterface[]>([]);
+	const [usersId, setUsersId] = useState<string[]>([]);
+
+	useEffect(() => {
+		handleGetProject();
+	}, []);
+
+	useEffect(() => {
+		handleGetAllUsers();
+	}, [usersId]);
 
 	if (!debouncedSearchRef.current) {
 		debouncedSearchRef.current = debounce((nextValue: string) => {
@@ -56,7 +65,84 @@ export default function Members(props: any) {
 		}
 	};
 
-	return (
+	const handleOnChange = (event: any) => {
+		debouncedSearchRef.current(event.target.value);
+	};
+
+	const handleGetProject = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/projects/${idProject}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				setUsersId((prevUser) => {
+					return [...prevUser, data.result.creator, data.result.members, data.result.pending];
+				});
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
+	const handleGetAllUsers = async () => {
+		setLoading(true);
+		if (usersId.length > 0) {
+			const usersPromise = usersId.map((id: string) => handleGetUserById(id));
+			const allUsers = await Promise.all(usersPromise);
+			setUsers(allUsers);
+		}
+		setLoading(false);
+	};
+
+	const handleGetUserById = async (id: string) => {
+		console.log(id);
+		try {
+			const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/${id}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				return data.result;
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
+	return loading ? (
+		<Loading />
+	) : (
 		<View style={membersStyle.container}>
 			<View style={[membersStyle.topBar]}>
 				<TouchableOpacity style={{ position: "absolute", left: 10 }}>
@@ -67,15 +153,15 @@ export default function Members(props: any) {
 				</View>
 			</View>
 			<View style={{ marginTop: 80 }}>
-				<TextInput style={membersStyle.input} placeholder="Email" />
+				<TextInput style={membersStyle.input} placeholder="Enter Email" onChangeText={handleOnChange} />
 				<ScrollView style={{ marginTop: 30 }}>
-					{members.map((m) => (
+					{users.map((u) => (
 						<TouchableOpacity style={[membersStyle.flexRowLayout, membersStyle.box]}>
-							<View key={m.id} style={[membersStyle.flexRowItem]}>
-								<Image source={m?.avatar ? { uri: m.avatar } : blackImg} style={membersStyle.image} />
+							<View key={u.id} style={[membersStyle.flexRowItem]}>
+								<Image source={u?.avatar ? { uri: u.avatar } : blackImg} style={membersStyle.image} />
 								<View>
-									<Text style={membersStyle.text}>{m.username}</Text>
-									<Text style={membersStyle.text}>{m.email}</Text>
+									<Text style={membersStyle.text}>{u.username}</Text>
+									<Text style={membersStyle.text}>{u.email}</Text>
 								</View>
 							</View>
 							<View style={[membersStyle.flexRowItem]}>
