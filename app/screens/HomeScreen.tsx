@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
       color: '#ffffff',
       fontSize: 20,
       fontWeight: 'bold',
-
     },
     boardContainer: {
       width: '97.5%',
