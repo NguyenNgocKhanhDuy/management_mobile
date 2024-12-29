@@ -75,7 +75,11 @@ export default function Login() {
           <Text style={loginStyles.footerText}>Forgot Password?</Text>
         </TouchableOpacity>
         <Text style={loginStyles.footerText}> | </Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+     onPress={() => {
+      router.push("/Register/Register");
+    }}
+  >
           <Text style={loginStyles.footerText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
