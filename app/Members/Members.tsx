@@ -13,12 +13,14 @@ import { Colors } from "@/assets/Colors";
 export default function Members(props: any) {
 	const blackImg = require("@/assets/images/black.jpg");
 	const idProject = "66ed28755d88dd7f163a5773";
-	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzU0NzQ4MzEsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1NDcxMjMxfQ.riDUtxLCi73F7AdDLJca_scp_SEvT-r9fDvr9-AeC0x2l8l4uIoSPO34YU1HUJEBE0kIg2avfMHJAJLigHQTIQ";
+	const token = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJubmtkLmNvbSIsInN1YiI6IjIxMTMwMDM1QHN0LmhjbXVhZi5lZHUudm4iLCJleHAiOjE3MzU0Nzg5ODAsImN1c3RvbUNsYWltIjoiQ3VzdG9tIiwiaWF0IjoxNzM1NDc1MzgwfQ.QfWM8zia7XJvsYJHGu3nNj3A5WWuEzUEEMogmJmI8sl2L1gHu8Ao6IBvY_pfkMaPbrHnjs5x-56g7HzGkB_zzg";
 	const [loading, setLoading] = useState(false);
 	const debouncedSearchRef = useRef<any>(null);
 	const [users, setUsers] = useState<UserInterface[]>([]);
 	const [usersId, setUsersId] = useState<string[]>([]);
 	const [pendingId, setPendingId] = useState<string[]>([]);
+	const [membersId, setMembersId] = useState<string[]>([]);
+	const [creatorId, setCreatorId] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 	const [selectUser, setSelectUser] = useState<UserInterface>();
 
@@ -91,6 +93,10 @@ export default function Members(props: any) {
 				setUsersId(() => {
 					return [data.result.creator, ...data.result.members, ...data.result.pending];
 				});
+
+				setCreatorId(data.result.creator);
+				setMembersId(data.result.members);
+				setPendingId(data.result.pending);
 
 				setLoading(false);
 			}
@@ -171,6 +177,7 @@ export default function Members(props: any) {
 			if (data.status) {
 				handleGetProject();
 				Toast.success("Mail sent successfully");
+				setModalVisible(!modalVisible);
 				setLoading(false);
 			}
 		} catch (error: any) {
@@ -219,6 +226,9 @@ export default function Members(props: any) {
 									<Text style={membersStyle.text}>{u.email}</Text>
 								</View>
 							</View>
+							<View>
+								<Text style={[membersStyle.text, {lineHeight: 40}]}>{u.id == creatorId ? "Creator" : membersId.some((m) => m == u.id) ? "Member" : pendingId.some((p) => p == u.id) ? "Pending" : ""}</Text>
+							</View>
 						</TouchableOpacity>
 					))}
 				</ScrollView>
@@ -235,11 +245,10 @@ export default function Members(props: any) {
 				>
 					<View style={membersStyle.centeredView}>
 						<View style={membersStyle.modalView}>
-							<Text style={membersStyle.modalText}>Information</Text>
 							<View>
-								<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={membersStyle.modalImage} />
+								<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={[membersStyle.modalImage, { marginHorizontal: "auto" }]} />
 								<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
-								<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
+								<Text style={membersStyle.modalText}>{selectUser?.email}</Text>
 							</View>
 							<View style={[membersStyle.flexRowLayout, { gap: 60, marginTop: 30 }]}>
 								<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGreen }]} onPress={handleAddMember}>
