@@ -24,7 +24,7 @@ const App = () => {
       case 'Notifications':
         return <NotificationsScreen />;
       case 'Account':
-        return <AccountScreen />;
+        return <AccountScreen token={token as string}/>;
       default:
         return <HomeScreen token={token as string}/>;
     }

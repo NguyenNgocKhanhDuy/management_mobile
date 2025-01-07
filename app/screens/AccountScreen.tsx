@@ -1,8 +1,44 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Constanst from "expo-constants";
+import axios from "axios";
+interface Project {
+	id: string;
+	name: string;
+	date: string;
+	creator: string;
+	members: string[] | null;
+	pending: string[] | null;
+}
+interface HomeScreenProps {
+	token: string;
+}
+export default function AccountScreen({ token }: HomeScreenProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
 
-export default function AccountScreen() {
+  const fetchProjects = async () => {
+		try {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/projectsHasUser`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (response.data.status) {
+				setProjects(response.data.result);
+			} else {
+				Alert.alert("Error", "Failed to fetch projects");
+			}
+		} catch (error) {
+			console.error("Error fetching projects:", error);
+			Alert.alert("Error", "An error occurred while fetching projects");
+		}
+	};
+  useEffect(() => {
+    fetchProjects();
+}, []);
+
   return (
     <ScrollView style={styles.container}>
       {/* Profile Section */}
@@ -18,16 +54,18 @@ export default function AccountScreen() {
 
       {/* Workspaces Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>2024_DW_Thu3_Ca3_Nhom7</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Trello Workspace</Text>
-        </View>
+  <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
+  {projects.length > 0 ? (
+    projects.map((project) => (
+      <View style={styles.menuItem} key={project.id}>
+        <Icon name="people-outline" size={24} color="#fff" />
+        <Text style={styles.menuText}>{project.name}</Text>
       </View>
+    ))
+  ) : (
+    <Text style={styles.menuText}>Không có dự án nào</Text>
+  )}
+</View>
 
       {/* Account Section */}
       <View style={styles.sectionContainer}>
