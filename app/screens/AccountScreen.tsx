@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Constanst from "expo-constants";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { router } from 'expo-router';
+import { setToken } from "@/store/UserSlice";
+
 interface Project {
 	id: string;
 	name: string;
@@ -38,6 +42,21 @@ export default function AccountScreen({ token }: HomeScreenProps) {
   useEffect(() => {
     fetchProjects();
 }, []);
+
+const handleAccountSwitch = async () => {
+  try {
+    // Xóa token khỏi AsyncStorage
+
+    // Chuyển hướng về trang Login
+    router.replace("/Login/Login");
+    console.log("Switched account successfully");
+  } catch (error) {
+    console.error("Error during account switch:", error);
+    Alert.alert("Error", "Failed to switch account");
+  }
+};
+
+
 
   return (
     <ScrollView style={styles.container}>
@@ -76,7 +95,7 @@ export default function AccountScreen({ token }: HomeScreenProps) {
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Chuyển Đổi Tài Khoản</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Chuyển Đổi Tài Khoản</Text>
         </View>
         <View style={styles.menuItem}>
           <Icon name="bug-outline" size={24} color="#fff" />
@@ -89,7 +108,7 @@ export default function AccountScreen({ token }: HomeScreenProps) {
         </View>
         <View style={styles.menuItem}>
           <Icon name="log-out-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Đăng Xuất</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Đăng Xuất</Text>
         </View>
       </View>
 
