@@ -28,7 +28,6 @@ export default function Login() {
       if (response.data.status) {
         const token = response.data.result.token;
         console.log('Login successful, token:', token);
-        Alert.alert('Success', 'Login successful');
         router.push({
           pathname: '/App',
           params: { token: token },
