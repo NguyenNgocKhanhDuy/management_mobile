@@ -17,10 +17,10 @@ interface Project {
 	members: string[] | null;
 	pending: string[] | null;
 }
-interface HomeScreenProps {
+interface AccountScreenProps {
 	token: string;
 }
-export default function AccountScreen({ token }: HomeScreenProps) {
+export default function AccountScreen({ token }: AccountScreenProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const dispatch = useDispatch();
 
