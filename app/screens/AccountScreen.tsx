@@ -1,8 +1,63 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Constanst from "expo-constants";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { router } from 'expo-router';
+import { setToken } from "@/store/UserSlice";
 
-export default function AccountScreen() {
+interface Project {
+	id: string;
+	name: string;
+	date: string;
+	creator: string;
+	members: string[] | null;
+	pending: string[] | null;
+}
+interface HomeScreenProps {
+	token: string;
+}
+export default function AccountScreen({ token }: HomeScreenProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  const fetchProjects = async () => {
+		try {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/projectsHasUser`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (response.data.status) {
+				setProjects(response.data.result);
+			} else {
+				Alert.alert("Error", "Failed to fetch projects");
+			}
+		} catch (error) {
+			console.error("Error fetching projects:", error);
+			Alert.alert("Error", "An error occurred while fetching projects");
+		}
+	};
+  useEffect(() => {
+    fetchProjects();
+}, []);
+
+const handleAccountSwitch = async () => {
+  try {
+    // Xóa token khỏi AsyncStorage
+
+    // Chuyển hướng về trang Login
+    router.replace("/Login/Login");
+    console.log("Switched account successfully");
+  } catch (error) {
+    console.error("Error during account switch:", error);
+    Alert.alert("Error", "Failed to switch account");
+  }
+};
+
+
+
   return (
     <ScrollView style={styles.container}>
       {/* Profile Section */}
@@ -18,16 +73,18 @@ export default function AccountScreen() {
 
       {/* Workspaces Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>2024_DW_Thu3_Ca3_Nhom7</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Trello Workspace</Text>
-        </View>
+  <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
+  {projects.length > 0 ? (
+    projects.map((project) => (
+      <View style={styles.menuItem} key={project.id}>
+        <Icon name="people-outline" size={24} color="#fff" />
+        <Text style={styles.menuText}>{project.name}</Text>
       </View>
+    ))
+  ) : (
+    <Text style={styles.menuText}>Không có dự án nào</Text>
+  )}
+</View>
 
       {/* Account Section */}
       <View style={styles.sectionContainer}>
@@ -38,7 +95,7 @@ export default function AccountScreen() {
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Chuyển Đổi Tài Khoản</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Chuyển Đổi Tài Khoản</Text>
         </View>
         <View style={styles.menuItem}>
           <Icon name="bug-outline" size={24} color="#fff" />
@@ -51,7 +108,7 @@ export default function AccountScreen() {
         </View>
         <View style={styles.menuItem}>
           <Icon name="log-out-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Đăng Xuất</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Đăng Xuất</Text>
         </View>
       </View>
 
