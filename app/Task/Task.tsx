@@ -33,16 +33,16 @@ export default function Task(props: any) {
 		handleGetTaskOfProject();
 	}, [idProject]);
 
-	useEffect(() => {
-		const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-			handleBackPress();
-			return false;
-		});
+	// useEffect(() => {
+	// 	const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+	// 		handleBackPress();
+	// 		return false;
+	// 	});
 
-		return () => {
-			backHandler.remove();
-		};
-	}, [tasks, move]);
+	// 	return () => {
+	// 		backHandler.remove();
+	// 	};
+	// }, [tasks, move]);
 
 	useEffect(() => {
 		if (taskId != "") {
@@ -52,13 +52,19 @@ export default function Task(props: any) {
 		}
 	}, [taskId]);
 
-	const handleBackPress = async () => {
+	useEffect(() => {
 		if (move) {
-			await handleUpdateStatusAndPositionTask();
-		} else {
-			setLoading(false);
+			handleUpdateStatusAndPositionTask();
 		}
-	};
+	}, [move]);
+
+	// const handleBackPress = async () => {
+	// 	if (move) {
+	// 		await handleUpdateStatusAndPositionTask();
+	// 	} else {
+	// 		setLoading(false);
+	// 	}
+	// };
 
 	const handleGetTaskOfProject = async () => {
 		setLoading(true);
@@ -92,7 +98,7 @@ export default function Task(props: any) {
 	};
 
 	const handleUpdateStatusAndPositionTask = async () => {
-		setLoading(true);
+		// setLoading(true);
 		console.log("Update");
 		console.log(tasks);
 
@@ -116,7 +122,7 @@ export default function Task(props: any) {
 			if (data.status) {
 				console.log(data.result);
 				// setTasks(data.result);
-				setLoading(false);
+				// setLoading(false);
 				setMove(false);
 			}
 		} catch (error: any) {
@@ -130,7 +136,7 @@ export default function Task(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
+			// setLoading(false);
 		}
 	};
 
