@@ -38,19 +38,13 @@ export const styles = StyleSheet.create({
 		fontSize: 20,
 	},
 
-	button: {
-		backgroundColor: Colors.green,
-		width: "auto",
-		borderRadius: 5,
-		alignSelf: "flex-start",
+	input: {
+		borderWidth: 1,
+		width: 200,
+		borderColor: "#ccc",
 		padding: 10,
+		borderRadius: 5,
 	},
-
-	buttonText: {
-		color: "#fff",
-		fontSize: 16,
-	},
-
 	baseProgress: {
 		height: 5,
 		backgroundColor: Colors.whiteGreen,
