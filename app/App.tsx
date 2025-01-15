@@ -8,6 +8,7 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import AccountScreen from './screens/AccountScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Profile from './Profile/Profile';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
