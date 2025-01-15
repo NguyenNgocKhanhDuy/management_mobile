@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Touchable } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Constanst from "expo-constants";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { router } from 'expo-router';
 import { setToken } from "@/store/UserSlice";
+import { setIdProject } from "@/store/TaskSlice";
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface Project {
 	id: string;
@@ -15,11 +17,12 @@ interface Project {
 	members: string[] | null;
 	pending: string[] | null;
 }
-interface HomeScreenProps {
+interface AccountScreenProps {
 	token: string;
 }
-export default function AccountScreen({ token }: HomeScreenProps) {
+export default function AccountScreen({ token }: AccountScreenProps) {
   const [projects, setProjects] = useState<Project[]>([]);
+  const dispatch = useDispatch();
 
   const fetchProjects = async () => {
 		try {
@@ -56,7 +59,11 @@ const handleAccountSwitch = async () => {
   }
 };
 
-
+const handleNavigateToProjectTask = (idProject: string) => {
+    dispatch(setToken(token));
+    dispatch(setIdProject(idProject));
+    router.push("./Task/Task");
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -76,10 +83,10 @@ const handleAccountSwitch = async () => {
   <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
   {projects.length > 0 ? (
     projects.map((project) => (
-      <View style={styles.menuItem} key={project.id}>
+      <TouchableOpacity style={styles.menuItem} key={project.id} onPress={() => handleNavigateToProjectTask(project.id)}>
         <Icon name="people-outline" size={24} color="#fff" />
         <Text style={styles.menuText}>{project.name}</Text>
-      </View>
+      </TouchableOpacity>
     ))
   ) : (
     <Text style={styles.menuText}>Không có dự án nào</Text>

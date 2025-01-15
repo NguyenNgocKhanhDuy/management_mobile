@@ -28,7 +28,6 @@ export default function Login() {
       if (response.data.status) {
         const token = response.data.result.token;
         console.log('Login successful, token:', token);
-        Alert.alert('Success', 'Login successful');
         router.push({
           pathname: '/App',
           params: { token: token },
@@ -38,7 +37,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
-      Alert.alert('Error', 'An error occurred while logging in');
+      Alert.alert('Error', 'Wrong email or password. Please try again !!!');
     }
   };
   
