@@ -37,7 +37,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
-      Alert.alert('Error', 'An error occurred while logging in');
+      Alert.alert('Error', 'Wrong email or password. Please try again !!!');
     }
   };
   
