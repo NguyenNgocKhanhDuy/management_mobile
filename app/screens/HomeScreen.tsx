@@ -29,7 +29,46 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 	const [newProjectName, setNewProjectName] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const dispatch = useDispatch();
-
+	const handleDeleteProject = async (projectId: string) => {
+		Alert.alert(
+			"Xóa Project",
+			"Bạn có chắc chắn muốn xóa project này?",
+			[
+				{
+					text: "Hủy",
+					style: "cancel",
+				},
+				{
+					text: "Xóa",
+					onPress: async () => {
+						try {
+							const response = await axios.delete(
+								`${Constanst.expoConfig?.extra?.API_URL}/projects/${projectId}`, // Đường dẫn đúng với API
+								{
+									headers: {
+										Authorization: `Bearer ${token}`, // Thêm header Authorization
+									},
+								}
+							);
+	
+							if (response.status === 200) {
+								Alert.alert("Thành công", "Đã xóa project");
+								fetchProjects(); // Làm mới danh sách project
+							} else {
+								Alert.alert("Lỗi", "Không thể xóa project");
+							}
+						} catch (error) {
+							console.error("Error deleting project:", error);
+							Alert.alert("Lỗi", "Đã xảy ra lỗi khi xóa project");
+						}
+					},
+				},
+			],
+			{ cancelable: true }
+		);
+	};
+	
+	
 	const fetchProjects = async () => {
 		try {
 			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/projectsHasUser`, {
@@ -123,15 +162,24 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 				</View>
 
 				{filteredProjects.map((project, index) => {
-					const randomImage = images[index % images.length];
-					return (
-						<TouchableOpacity key={project.id} onPress={() => handleNavigateToProjectTask(project.id)}>
-							<ImageBackground key={project.id} source={randomImage} style={styles.boardContainer} imageStyle={styles.image}>
-								<Text style={styles.nameBoard}>{project.name}</Text>
-							</ImageBackground>
-						</TouchableOpacity>
-					);
-				})}
+    const randomImage = images[index % images.length];
+    return (
+        <TouchableOpacity
+            key={project.id}
+            onPress={() => handleNavigateToProjectTask(project.id)}
+            onLongPress={() => handleDeleteProject(project.id)} // Thêm sự kiện xóa
+        >
+            <ImageBackground
+                key={project.id}
+                source={randomImage}
+                style={styles.boardContainer}
+                imageStyle={styles.image}
+            >
+                <Text style={styles.nameBoard}>{project.name}</Text>
+            </ImageBackground>
+        </TouchableOpacity>
+    );
+})}
 
 				<Modal visible={isModalVisible} transparent={true} animationType="fade" onRequestClose={() => setIsModalVisible(false)}>
 					<View style={styles.modalBackground}>

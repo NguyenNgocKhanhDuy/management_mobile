@@ -1,130 +1,8 @@
-import { router } from "expo-router";
-import React ,{useState,useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity ,Image} from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import axios from "axios";
-import Constanst from "expo-constants";
 
 export default function AccountScreen() {
-const [username, setUsername] = useState<string | null>(null);
-  const [userMail, setUserMail] = useState<string | null>(null);
-  const [avatar, setAvatar] = useState<string| null>(null);
-const token = useSelector((state: RootState) => state.user.token);
-  console.log('Kết quả trả về:', token);
-  const [email, setEmail] = useState('');
-  const blackImg = require("../../assets/images/b1.jpg");
-
-    // Hàm tải dữ liệu từ API
-    useEffect(() => {
-    const fetchUserData = async () => {
-      const handleGetUserName = async () => {
-        try {
-          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          //const data = response.data;
-          if (response.data?.status && response.data.result?.username) {
-            console.log('Kết quả trả về:', username);
-            return response.data.result.username;
-      
-            
-          }
-        //	console.log('Kết quả trả về:', response.data.username);
-        } catch (error: any) {
-          if (error.response) {
-            console.error("Error:", error.response.data.message || error.response.data.error);
-          } else if (error.request) {
-            console.error("Error:", error.request);
-          } else {
-            console.error("Error:", error.message);
-          }
-        }
-      };
-      const handleGetAvatar = async () => {
-        try {
-          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          //const data = response.data;
-          if (response.data?.status && response.data.result?.avatar) {
-            console.log('Kết quả trả về:', avatar);
-            return response.data.result.avatar;
-      
-            
-          }
-        //	console.log('Kết quả trả về:', response.data.username);
-        } catch (error: any) {
-          if (error.response) {
-            console.error("Error:", error.response.data.message || error.response.data.error);
-          } else if (error.request) {
-            console.error("Error:", error.request);
-          } else {
-            console.error("Error:", error.message);
-          }
-        }
-      };
-      const handleGetEmail = async () => {
-        try {
-          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          //const data = response.data;
-          if (response.data?.status && response.data.result?.email) {
-            console.log('Kết quả trả về:', email);
-            return response.data.result.email;
-      
-            
-          }
-        //	console.log('Kết quả trả về:', response.data.username);
-        } catch (error: any) {
-          if (error.response) {
-            console.error("Error:", error.response.data.message || error.response.data.error);
-          } else if (error.request) {
-            console.error("Error:", error.request);
-          } else {
-            console.error("Error:", error.message);
-          }
-        }
-      };
-
-     
-        // Gọi API lấy username khi vào màn hình
-        const fetchUsername = async () => {
-          const fetchedUsername = await handleGetUserName();
-          setUsername(fetchedUsername); // Cập nhật state
-        };
-        const fetchAvatar = async ()=>{
-          const fetchedAvatar = await handleGetAvatar();
-          setAvatar(fetchedAvatar)
-        }
-        const fetchMail = async ()=>{
-          const fetchedMail = await handleGetEmail();
-          setUserMail(fetchedMail)
-        }
-     
-        fetchMail();
-        fetchAvatar();
-        fetchUsername();
-     
-    }
-
-  fetchUserData()
-}, 
-[]);
   return (
     <ScrollView style={styles.container}>
       {/* Profile Section */}
@@ -144,16 +22,18 @@ const token = useSelector((state: RootState) => state.user.token);
 
       {/* Workspaces Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>2024_DW_Thu3_Ca3_Nhom7</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Trello Workspace</Text>
-        </View>
-      </View>
+  <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
+  {projects.length > 0 ? (
+    projects.map((project) => (
+      <TouchableOpacity style={styles.menuItem} key={project.id} onPress={() => handleNavigateToProjectTask(project.id)}>
+        <Icon name="people-outline" size={24} color="#fff" />
+        <Text style={styles.menuText}>{project.name}</Text>
+      </TouchableOpacity>
+    ))
+  ) : (
+    <Text style={styles.menuText}>Không có dự án nào</Text>
+  )}
+</View>
 
       {/* Account Section */}
       <View style={styles.sectionContainer}>
@@ -170,7 +50,7 @@ const token = useSelector((state: RootState) => state.user.token);
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Chuyển Đổi Tài Khoản</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Chuyển Đổi Tài Khoản</Text>
         </View>
         <View style={styles.menuItem}>
           <Icon name="bug-outline" size={24} color="#fff" />
@@ -183,7 +63,7 @@ const token = useSelector((state: RootState) => state.user.token);
         </View>
         <View style={styles.menuItem}>
           <Icon name="log-out-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Đăng Xuất</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Đăng Xuất</Text>
         </View>
       </View>
 

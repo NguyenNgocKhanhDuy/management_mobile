@@ -33,7 +33,6 @@ export default function Login() {
         const token = response.data.result.token;
         dispatch(setToken(token));
         console.log('Login successful, token:', token);
-        Alert.alert('Success', 'Login successful');
         router.push({
           pathname: '/App',
            params: { token: token },
@@ -43,7 +42,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
-      Alert.alert('Error', 'An error occurred while logging in');
+      Alert.alert('Error', 'Wrong email or password. Please try again !!!');
     }
   };
   
@@ -76,7 +75,10 @@ export default function Login() {
       </TouchableOpacity>
 
       <View style={loginStyles.footer}>
-        <TouchableOpacity>
+        <TouchableOpacity
+        onPress={() => {
+      router.push("/ForgotPassword/ForgotPassword");
+    }}>
           <Text style={loginStyles.footerText}>Forgot Password?</Text>
         </TouchableOpacity>
         <Text style={loginStyles.footerText}> | </Text>
