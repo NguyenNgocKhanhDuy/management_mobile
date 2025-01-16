@@ -30,15 +30,11 @@ const ActivityScreen: React.FC = () => {
   const fetchLogs = async () => {
     try {
       const response = await axios.get(
-        `${Constanst.expoConfig?.extra?.API_URL}/logs`,
+        `${Constanst.expoConfig?.extra?.API_URL}/logs/${idProject}`,
         {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          },
-          params: {
-            id: idProject,
-            page: 0,
           },
         }
       );

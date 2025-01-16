@@ -159,7 +159,7 @@ export default function Task(props: any) {
 			const data = response.data;
 			if (data.status) {
 				console.log(data.result);
-				setTasks(data.result);
+				setTasks((prev) => [...prev, data.result]);
 				setModalVisible(!modalVisible);
 				setLoading(false);
 			}
@@ -282,7 +282,7 @@ export default function Task(props: any) {
 					<TouchableOpacity onPress={() => router.back()}>
 						<FontAwesome6 name="xmark" style={taskStyles.icon} />
 					</TouchableOpacity>
-						<Text style={taskStyles.text}>{projectName}</Text>
+					<Text style={taskStyles.text}>{projectName}</Text>
 				</View>
 				<View style={[taskStyles.flexRowLayout, { gap: 30 }]}>
 					<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
