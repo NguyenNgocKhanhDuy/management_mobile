@@ -1,82 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Touchable } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Constanst from "expo-constants";
-import axios from "axios";
-import { useDispatch } from "react-redux";
-import { router } from 'expo-router';
-import { setToken } from "@/store/UserSlice";
-import { setIdProject } from "@/store/TaskSlice";
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
-interface Project {
-	id: string;
-	name: string;
-	date: string;
-	creator: string;
-	members: string[] | null;
-	pending: string[] | null;
-}
-interface AccountScreenProps {
-	token: string;
-}
-export default function AccountScreen({ token }: AccountScreenProps) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const dispatch = useDispatch();
-
-  const fetchProjects = async () => {
-		try {
-			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/projectsHasUser`, {
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			if (response.data.status) {
-				setProjects(response.data.result);
-			} else {
-				Alert.alert("Error", "Failed to fetch projects");
-			}
-		} catch (error) {
-			console.error("Error fetching projects:", error);
-			Alert.alert("Error", "An error occurred while fetching projects");
-		}
-	};
-  useEffect(() => {
-    fetchProjects();
-}, []);
-
-const handleAccountSwitch = async () => {
-  try {
-    // Xóa token khỏi AsyncStorage
-
-    // Chuyển hướng về trang Login
-    router.replace("/Login/Login");
-    console.log("Switched account successfully");
-  } catch (error) {
-    console.error("Error during account switch:", error);
-    Alert.alert("Error", "Failed to switch account");
-  }
-};
-
-const handleNavigateToProjectTask = (idProject: string) => {
-    dispatch(setToken(token));
-    dispatch(setIdProject(idProject));
-    router.push("./Task/Task");
-  };
-
+export default function AccountScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* Profile Section */}
       <View style={styles.profileSection}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>VH</Text>
-        </View>
-        <Text style={styles.nameText}>Võ Nam Ngân Hà</Text>
-        <Text style={styles.usernameText}>@vonamnganha</Text>
-        <Text style={styles.emailText}>21130047@st.hcmuaf.edu.vn</Text>
-        <Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
-      </View>
+				<View style={styles.avatarContainer}>
+        <View style={{ marginTop: 30 }}>
+					<Image
+					source={avatar ? { uri: avatar } : blackImg}
+					style={styles.profileImage}/>
+				</View>
+				</View>
+				<Text style={styles.nameText}>{username || "loading..."}</Text>
+				<Text style={styles.usernameText}>@{username || "loading..."}</Text>
+				<Text style={styles.emailText}>{userMail || "loading..."}</Text>
+				<Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
+			  </View>
 
       {/* Workspaces Section */}
       <View style={styles.sectionContainer}>
@@ -97,8 +39,14 @@ const handleNavigateToProjectTask = (idProject: string) => {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Tài khoản</Text>
         <View style={styles.menuItem}>
+        <TouchableOpacity
+        onPress={() => router.push("/Profile/Profile")}
+        style={styles.menuItem}
+      >
           <Icon name="person-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Hồ sơ và Hiển thị</Text>
+      <Text style={styles.menuText}>Hồ sơ và Hiển thị</Text>
+      </TouchableOpacity>
+    
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />
@@ -134,13 +82,19 @@ const handleNavigateToProjectTask = (idProject: string) => {
 
     </ScrollView>
   );
-}
 
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1D2125',
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
   },
   profileSection: {
     alignItems: 'center',
@@ -165,6 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 5,
+    marginTop:10,
   },
   usernameText: {
     color: '#B6C2CF',
@@ -241,3 +196,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

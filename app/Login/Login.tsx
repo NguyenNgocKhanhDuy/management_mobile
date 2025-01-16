@@ -4,11 +4,15 @@ import { loginStyles } from "./Login.style";
 import { router } from "expo-router";
 import axios from 'axios';
 import Constanst from "expo-constants";
+import { setToken } from "@/store/UserSlice";
+import { useDispatch } from "react-redux";
 
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     console.log("API URL:", Constanst.expoConfig?.extra?.API_URL);
@@ -27,10 +31,11 @@ export default function Login() {
 
       if (response.data.status) {
         const token = response.data.result.token;
+        dispatch(setToken(token));
         console.log('Login successful, token:', token);
         router.push({
           pathname: '/App',
-          params: { token: token },
+           params: { token: token },
         });; 
       } else {
         Alert.alert('Error', response.data.message || 'Login failed');
