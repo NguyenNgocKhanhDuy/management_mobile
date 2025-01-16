@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Image, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from "react-native";
+import * as ImagePicker from "expo-image-picker"; // Make sure to install `expo-image-picker`
 import styles from "./Profile.style";
 import { Toast } from "toastify-react-native";
 import axios from "axios";
 import Constanst from "expo-constants";
-import { RootState } from "@/store/store";
+import store, { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { TextInput, StyleSheet, Button } from "react-native";
-
-
+import { storage } from "../firebase/firebase";
+import { getDownloadURL, ref, uploadBytesResumable } from "@firebase/storage";
 const Profile = () => {
 	const blackImg = require("../../assets/images/b1.jpg");
 	const token = useSelector((state: RootState) => state.user.token);
@@ -21,6 +22,73 @@ const Profile = () => {
 	const [username, setUsername] = useState<string | null>(null);
 	const [userMail, setUserMail] = useState<string | null>(null);
 	const [avatar, setAvatar] = useState<string | null>(null);
+
+	const [NewUserAvatar, setNewUserAvatar] = useState("");
+	const [loading, setLoading] = useState(false);
+
+	const uploadImageToFirebase = async () => {
+		try {
+			const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+			if (!permissionResult.granted) {
+				throw new Error("Permission denied. You need to allow media access.");
+			}
+
+			const result = await ImagePicker.launchImageLibraryAsync({
+				allowsEditing: true,
+				quality: 1,
+			});
+
+			if (result.canceled) {
+				throw new Error("Image selection cancelled.");
+			}
+
+			// Lấy URI của ảnh được chọn
+			const imageUri = result.assets[0].uri;
+			const fileName = imageUri.split("/").pop();
+
+			// Đọc file và convert sang blob
+			const response = await fetch(imageUri);
+			const blob = await response.blob();
+
+			const storageRef = ref(storage, `images/${fileName}`);
+
+			// Start uploading the file
+			const uploadTask = uploadBytesResumable(storageRef, blob);
+			// Gửi ảnh lên Firebase Storage
+			//   const firebaseStorageUrl = `https://firebasestorage.googleapis.com/v0/b/management-71234.appspot.com/o/${fileName}`;
+			//   const storageUrl = `https://firebasestorage.googleapis.com/v0/b/management-71234.appspot.com/o?name=images/${fileName}`;
+
+			// Trả về Promise để theo dõi quá trình upload
+			return new Promise((resolve, reject) => {
+				uploadTask.on(
+					"state_changed",
+					(snapshot) => {
+						// Xử lý tiến trình upload
+						const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+						console.log(`Uploading: ${progress}%`);
+					},
+					(error) => {
+						// Xử lý lỗi
+						console.error("Upload failed:", error);
+						reject("Upload failed");
+					},
+					async () => {
+						// Sau khi upload xong, lấy download URL
+						try {
+							const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+							console.log("File available at:", downloadUrl);
+							resolve(downloadUrl); // Resolve Promise với URL tải xuống
+						} catch (error) {
+							reject("Error getting download URL");
+						}
+					}
+				);
+			});
+		} catch (error) {
+			console.error("Error uploading image:", error);
+			throw error;
+		}
+	};
 
 	const handleGetUserName = async () => {
 		try {
@@ -196,7 +264,52 @@ const Profile = () => {
 			setIsLoading(false);
 		}, 3000);
 	};
-
+	const handleUpload = async () => {
+		try {
+			setLoading(true);
+			const imageUrl = await uploadImageToFirebase();
+			handleUpdateAvatar(imageUrl as string); // Gọi hàm cập nhật avatar
+			Alert.alert("Success", "Avatar updated successfully!");
+		} catch (error) {
+			Alert.alert("Error", "Something went wrong.");
+		} finally {
+			setLoading(false);
+		}
+	};
+	const handleUpdateAvatar = async (NewUserAvatar: string) => {
+		// if (!NewUserAvatar.trim()) {
+		//    // Alert.alert('Error', 'hãy nhập userName mới ! ');
+		//     return;
+		//   }
+		setIsLoading(true);
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/users/updateAvatar`,
+				{ avatar: NewUserAvatar.trim() },
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+			if (response.data.status) {
+				Alert.alert("Success", "avatar cập nhật thành công");
+				setAvatar("");
+			} else {
+				Alert.alert("Error", response.data.message || "lỗi khi cập nhật avatar");
+			}
+			console.log("Kết quả trả về:", response.data);
+		} catch (error) {
+			console.error("lỗi cập nhật thất bại:", error);
+			Alert.alert("lỗi", "thất bại");
+		} finally {
+			setIsLoading(false);
+		}
+		setTimeout(() => {
+			setIsLoading(false);
+		}, 3000);
+	};
 	return (
 		<ScrollView style={styles.container}>
 			<View style={styles.container}>
@@ -212,14 +325,7 @@ const Profile = () => {
 					<Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
 				</View>
 				{/* Container cho ảnh đại diện */}
-				<View style={styles.profileImageContainer}>
-					<TouchableOpacity
-						style={styles.changePhotoButton}
-						// onPress={changeProfileImage}
-					>
-						<Text style={styles.changePhotoButtonText}>Change Photo</Text>
-					</TouchableOpacity>
-				</View>
+				<View style={styles.profileImageContainer}>{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Thay đổi Avatar" onPress={handleUpload} color={"#3D4135"} />}</View>
 
 				{/* Container cho chức năng đổi mật khẩu */}
 				<View style={styles.changePasswordContainer}>
