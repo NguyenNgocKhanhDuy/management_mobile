@@ -6,9 +6,6 @@ import axios from "axios";
 import Constanst from "expo-constants";
 import { setToken } from "@/store/UserSlice";
 import { useDispatch } from "react-redux";
-<<<<<<< HEAD
-import ForgotPassword from "@/app/ForgotPassword/ForgotPassword"
-=======
 
 import * as ImagePicker from "expo-image-picker";
 import { BarCodeScanner } from "expo-barcode-scanner";
@@ -16,7 +13,6 @@ import { Toast } from "toastify-react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Colors } from "@/assets/Colors";
 import Loading from "../Loading/Loading";
->>>>>>> 583afbc12abf91960278ee84ba078c17c072cb5f
 
 export default function Login() {
 	const [email, setEmail] = useState("");
