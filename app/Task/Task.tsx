@@ -16,6 +16,7 @@ import { setToken } from "@/store/UserSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { RootState } from "@/store/store";
 import { Colors } from "@/assets/Colors";
+import ActivityScreen from './ActivityScreen';
 
 export default function Task(props: any) {
 	// const idProject = "66ed28755d88dd7f163a5773";
@@ -68,6 +69,14 @@ export default function Task(props: any) {
 	// 		setLoading(false);
 	// 	}
 	// };
+
+
+	
+	const handleNavigateToActivityOfTask = (idProject: string) => {
+		dispatch(setToken(token));
+		dispatch(setIdProject(idProject));
+		router.push("./ActivityScreen");
+	};
 
 	const handleGetTaskOfProject = async () => {
 		setLoading(true);
@@ -247,14 +256,16 @@ export default function Task(props: any) {
 				</View>
 				<View style={[taskStyles.flexRowLayout, { gap: 30 }]}>
 					<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-						<FontAwesome6 name="plus" style={taskStyles.icon} />
+							<FontAwesome6 name="plus" style={taskStyles.icon} />
+						</TouchableOpacity>
+						
+					<TouchableOpacity>
+						<FontAwesome6 name="bell" style={taskStyles.icon} onPress={() => handleNavigateToActivityOfTask(idProject)}/>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={handleNavigateToMembers}>
 						<FontAwesome6 name="user-plus" style={taskStyles.icon} />
 					</TouchableOpacity>
-					<TouchableOpacity>
-						<FontAwesome6 name="ellipsis" style={taskStyles.icon} />
-					</TouchableOpacity>
+					
 				</View>
 			</View>
 			<Carousel

@@ -1,6 +1,6 @@
+import { LogBox } from "react-native";
 import Login from "./Login/Login";
-import Task from "./Task/Task";
-
+LogBox.ignoreAllLogs();
 export default function IndexScreen() {
 	return <Login />;
 

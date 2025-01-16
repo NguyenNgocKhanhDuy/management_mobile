@@ -4,15 +4,23 @@ import { loginStyles } from "./Login.style";
 import { router } from "expo-router";
 import axios from "axios";
 import Constanst from "expo-constants";
+import { setToken } from "@/store/UserSlice";
+import { useDispatch } from "react-redux";
+
 import * as ImagePicker from "expo-image-picker";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { Toast } from "toastify-react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Colors } from "@/assets/Colors";
+import Loading from "../Loading/Loading";
 
 export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [loading, setLoading] = useState(false);
+
+	const dispatch = useDispatch();
+
 	const [isScannerVisible, setIsScannerVisible] = useState(false);
 	const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
@@ -24,6 +32,7 @@ export default function Login() {
 	}, []);
 
 	const handleLogin = async () => {
+		setLoading(true);
 		console.log("API URL:", Constanst.expoConfig?.extra?.API_URL);
 		console.log("Email:", email);
 		console.log("Password:", password);
@@ -40,11 +49,11 @@ export default function Login() {
 					},
 				}
 			);
-
 			if (response.data.status) {
 				const token = response.data.result.token;
+				dispatch(setToken(token));
 				console.log("Login successful, token:", token);
-				Alert.alert("Success", "Login successful");
+				setLoading(false);
 				router.push({
 					pathname: "/App",
 					params: { token: token },
@@ -54,7 +63,8 @@ export default function Login() {
 			}
 		} catch (error) {
 			console.error("Error during login:", error);
-			Alert.alert("Error", "An error occurred while logging in");
+			Alert.alert("Error", "Wrong email or password. Please try again !!!");
+			setLoading(false);
 		}
 	};
 
@@ -123,10 +133,16 @@ export default function Login() {
 			</TouchableOpacity>
 
 			<View style={loginStyles.footer}>
-				<TouchableOpacity>
+				<TouchableOpacity
+					onPress={() => {
+						router.push("./ForgotPassword/ForgotPassword");
+					}}
+				>
 					<Text style={loginStyles.footerText}>Forgot Password?</Text>
 				</TouchableOpacity>
+
 				<Text style={loginStyles.footerText}> | </Text>
+
 				<TouchableOpacity
 					onPress={() => {
 						router.push("/Register/Register");
@@ -152,6 +168,8 @@ export default function Login() {
 					<FontAwesome6 name="image" style={{ fontSize: 30 }} />
 				</TouchableOpacity>
 			</Modal>
+
+			{loading ? <Loading /> : ""}
 		</View>
 	);
 }

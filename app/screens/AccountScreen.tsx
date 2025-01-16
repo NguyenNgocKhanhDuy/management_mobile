@@ -7,38 +7,50 @@ export default function AccountScreen() {
     <ScrollView style={styles.container}>
       {/* Profile Section */}
       <View style={styles.profileSection}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>VH</Text>
-        </View>
-        <Text style={styles.nameText}>Võ Nam Ngân Hà</Text>
-        <Text style={styles.usernameText}>@vonamnganha</Text>
-        <Text style={styles.emailText}>21130047@st.hcmuaf.edu.vn</Text>
-        <Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
-      </View>
+				<View style={styles.avatarContainer}>
+        <View style={{ marginTop: 30 }}>
+					<Image
+					source={avatar ? { uri: avatar } : blackImg}
+					style={styles.profileImage}/>
+				</View>
+				</View>
+				<Text style={styles.nameText}>{username || "loading..."}</Text>
+				<Text style={styles.usernameText}>@{username || "loading..."}</Text>
+				<Text style={styles.emailText}>{userMail || "loading..."}</Text>
+				<Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
+			  </View>
 
       {/* Workspaces Section */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>2024_DW_Thu3_Ca3_Nhom7</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon name="people-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Trello Workspace</Text>
-        </View>
-      </View>
+  <Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
+  {projects.length > 0 ? (
+    projects.map((project) => (
+      <TouchableOpacity style={styles.menuItem} key={project.id} onPress={() => handleNavigateToProjectTask(project.id)}>
+        <Icon name="people-outline" size={24} color="#fff" />
+        <Text style={styles.menuText}>{project.name}</Text>
+      </TouchableOpacity>
+    ))
+  ) : (
+    <Text style={styles.menuText}>Không có dự án nào</Text>
+  )}
+</View>
 
       {/* Account Section */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Tài khoản</Text>
         <View style={styles.menuItem}>
+        <TouchableOpacity
+        onPress={() => router.push("/Profile/Profile")}
+        style={styles.menuItem}
+      >
           <Icon name="person-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Hồ sơ và Hiển thị</Text>
+      <Text style={styles.menuText}>Hồ sơ và Hiển thị</Text>
+      </TouchableOpacity>
+    
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Chuyển Đổi Tài Khoản</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Chuyển Đổi Tài Khoản</Text>
         </View>
         <View style={styles.menuItem}>
           <Icon name="bug-outline" size={24} color="#fff" />
@@ -51,7 +63,7 @@ export default function AccountScreen() {
         </View>
         <View style={styles.menuItem}>
           <Icon name="log-out-outline" size={24} color="#fff" />
-          <Text style={styles.menuText}>Đăng Xuất</Text>
+          <Text style={styles.menuText} onPress={handleAccountSwitch}>Đăng Xuất</Text>
         </View>
       </View>
 
@@ -70,13 +82,19 @@ export default function AccountScreen() {
 
     </ScrollView>
   );
-}
 
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1D2125',
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
   },
   profileSection: {
     alignItems: 'center',
@@ -101,6 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 5,
+    marginTop:10,
   },
   usernameText: {
     color: '#B6C2CF',
@@ -177,3 +196,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

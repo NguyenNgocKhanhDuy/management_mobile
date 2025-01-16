@@ -283,7 +283,6 @@ export default function TaskDetail(props: any) {
 	};
 
 	const handleAddSubTask = async () => {
-		setLoading(true);
 		const title = "New Subtask " + (subtasks.length > 0 ? subtasks.length + 1 : "1");
 		try {
 			const response = await axios.post(
@@ -306,7 +305,6 @@ export default function TaskDetail(props: any) {
 				setSubtasks((prevST) => {
 					return [...prevST, data.result];
 				});
-				setLoading(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -319,12 +317,10 @@ export default function TaskDetail(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
 		}
 	};
 
 	const handleDeleteSubTask = async (idSubtask: string) => {
-		setLoading(true);
 		try {
 			const response = await axios.delete(`${Constanst.expoConfig?.extra?.API_URL}/subtasks/${idSubtask}`, {
 				headers: {
@@ -339,7 +335,6 @@ export default function TaskDetail(props: any) {
 					return st.filter((st) => st.id !== idSubtask);
 				});
 				setIdSubtask("");
-				setLoading(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -352,12 +347,10 @@ export default function TaskDetail(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
 		}
 	};
 
 	const handleUpdateStatusSubTask = async (idSubtask: string, status: boolean) => {
-		setLoading(true);
 		try {
 			const response = await axios.put(
 				`${Constanst.expoConfig?.extra?.API_URL}/subtasks/updateSubtaskStatus`,
@@ -377,7 +370,6 @@ export default function TaskDetail(props: any) {
 			if (data.status) {
 				setTypeUpdate("");
 				setIdSubtask("");
-				setLoading(false);
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -390,7 +382,6 @@ export default function TaskDetail(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
 		}
 	};
 

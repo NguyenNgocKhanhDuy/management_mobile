@@ -8,6 +8,7 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import AccountScreen from './screens/AccountScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Profile from './Profile/Profile';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Home');
@@ -20,11 +21,11 @@ const App = () => {
       case 'Home':
         return <HomeScreen token={token as string}/>;
       case 'Search':
-        return <SearchScreen />;
+        return <SearchScreen token={token as string}/>;
       case 'Notifications':
         return <NotificationsScreen />;
       case 'Account':
-        return <AccountScreen />;
+        return <AccountScreen token={token as string}/>;
       default:
         return <HomeScreen token={token as string}/>;
     }
