@@ -48,12 +48,12 @@ const ActivityScreen: React.FC = () => {
 				const sortedLogs = response.data.result.sort((a: Log, b: Log) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
 				setLogs(sortedLogs);
 			} else {
-				Alert.alert("Lỗi", "Không thể lấy danh sách hoạt động");
+				Alert.alert("Error", "No logs available");
 			}
 			setLoading(false);
 		} catch (error) {
 			console.error("Lỗi khi gọi API logs:", error);
-			Alert.alert("Lỗi", "Đã xảy ra lỗi khi lấy danh sách hoạt động");
+			Alert.alert("Error", "Failed to get logs");
 			setLoading(false);
 		}
 	};

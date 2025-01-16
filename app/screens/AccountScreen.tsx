@@ -189,14 +189,14 @@ export default function AccountScreen({ token }: AccountScreenProps) {
 					</View>
 				</View>
 				<Text style={styles.nameText}>{username || "loading..."}</Text>
-				<Text style={styles.usernameText}>@{username || "loading..."}</Text>
+				{/* <Text style={styles.usernameText}>@{username || "loading..."}</Text> */}
 				<Text style={styles.emailText}>{userMail || "loading..."}</Text>
-				<Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
+				{/* <Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text> */}
 			</View>
 
 			{/* Workspaces Section */}
 			<View style={styles.sectionContainer}>
-				<Text style={styles.sectionTitle}>Các dự án làm việc của bạn</Text>
+				<Text style={styles.sectionTitle}>Your project</Text>
 				{projects.length > 0 ? (
 					projects.map((project) => (
 						<TouchableOpacity style={styles.menuItem} key={project.id} onPress={() => handleNavigateToProjectTask(project.id)}>
@@ -205,44 +205,44 @@ export default function AccountScreen({ token }: AccountScreenProps) {
 						</TouchableOpacity>
 					))
 				) : (
-					<Text style={styles.menuText}>Không có dự án nào</Text>
+					<Text style={styles.menuText}>None</Text>
 				)}
 			</View>
 
 			{/* Account Section */}
 			<View style={styles.sectionContainer}>
-				<Text style={styles.sectionTitle}>Tài khoản</Text>
+				<Text style={styles.sectionTitle}>Account</Text>
 				<View style={styles.menuItem}>
 					<Icon name="person-outline" size={24} color="#fff" />
 					<Text style={styles.menuText} onPress={() => router.push("/Profile/Profile")}>
-						Hồ sơ và Hiển thị
+						Profile
 					</Text>
 				</View>
-				<View style={styles.menuItem}>
+				{/* <View style={styles.menuItem}>
 					<Icon name="swap-horizontal-outline" size={24} color="#fff" />
 					<Text style={styles.menuText} onPress={handleAccountSwitch}>
-						Chuyển Đổi Tài Khoản
+						Change Account
 					</Text>
-				</View>
-				<View style={styles.menuItem}>
+				</View> */}
+				{/* <View style={styles.menuItem}>
 					<Icon name="bug-outline" size={24} color="#fff" />
 					<Text style={styles.menuText}>Hãy là người kiểm tra bản beta</Text>
-				</View>
-				<View style={styles.menuItem}>
+				</View> */}
+				{/* <View style={styles.menuItem}>
 					<Icon name="globe-outline" size={24} color="#fff" />
 					<Text style={styles.menuText}>Quản lý tài khoản trên trình duyệt</Text>
 					<Text style={styles.subText}>Xem lại các tài khoản đã đăng nhập và xóa khỏi trình duyệt</Text>
-				</View>
+				</View> */}
 				<View style={styles.menuItem}>
 					<Icon name="log-out-outline" size={24} color="#fff" />
 					<Text style={styles.menuText} onPress={handleAccountSwitch}>
-						Đăng Xuất
+						Log out
 					</Text>
 				</View>
 			</View>
 
 			{/* Interface Section */}
-			<View style={styles.sectionContainer}>
+			{/* <View style={styles.sectionContainer}>
 				<Text style={styles.sectionTitle}>Giao diện</Text>
 				<View style={styles.menuItem}>
 					<Icon name="phone-portrait-outline" size={24} color="#fff" />
@@ -252,7 +252,7 @@ export default function AccountScreen({ token }: AccountScreenProps) {
 					<Icon name="color-palette-outline" size={24} color="#fff" />
 					<Text style={styles.menuText}>Chọn chủ đề</Text>
 				</View>
-			</View>
+			</View> */}
 		</ScrollView>
 	);
 }

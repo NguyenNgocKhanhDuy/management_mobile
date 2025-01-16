@@ -12,8 +12,7 @@ import { Toast } from "toastify-react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Colors } from "@/assets/Colors";
 import Loading from "../Loading/Loading";
-import ForgotPassword from "@/app/ForgotPassword/ForgotPassword"
-
+import ForgotPassword from "@/app/ForgotPassword/ForgotPassword";
 
 export default function Login() {
 	const [email, setEmail] = useState("");
@@ -91,6 +90,7 @@ export default function Login() {
 			if (result && result.length > 0) {
 				const qrData = result[0].data;
 				Toast.success("Login successful");
+				dispatch(setToken(qrData));
 				router.push({
 					pathname: "/App",
 					params: { token: qrData },
@@ -107,6 +107,7 @@ export default function Login() {
 	const handleQrCodeScan = ({ type, data }: { type: string; data: string }) => {
 		setIsScannerVisible(false);
 		Toast.success("Login successful");
+		dispatch(setToken(data));
 		router.push({
 			pathname: "/App",
 			params: { token: data },
@@ -136,7 +137,7 @@ export default function Login() {
 			<View style={loginStyles.footer}>
 				<TouchableOpacity
 					onPress={() => {
-						router.push("./ForgotPassword/ForgotPassword");
+						router.push("/ForgotPassword/ForgotPassword");
 					}}
 				>
 					<Text style={loginStyles.footerText}>Forgot Password?</Text>

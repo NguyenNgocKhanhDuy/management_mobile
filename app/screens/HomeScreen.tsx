@@ -31,15 +31,15 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 	const dispatch = useDispatch();
 	const handleDeleteProject = async (projectId: string) => {
 		Alert.alert(
-			"Xóa Project",
-			"Bạn có chắc chắn muốn xóa project này?",
+			"Delete Project",
+			"Do you want to delete this project?",
 			[
 				{
-					text: "Hủy",
+					text: "Cancel",
 					style: "cancel",
 				},
 				{
-					text: "Xóa",
+					text: "Delete",
 					onPress: async () => {
 						try {
 							const response = await axios.delete(
@@ -52,14 +52,14 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 							);
 	
 							if (response.status === 200) {
-								Alert.alert("Thành công", "Đã xóa project");
+								Alert.alert("Success", "Delete successfully");
 								fetchProjects(); // Làm mới danh sách project
 							} else {
-								Alert.alert("Lỗi", "Không thể xóa project");
+								Alert.alert("Fail", "Delete failed");
 							}
 						} catch (error) {
 							console.error("Error deleting project:", error);
-							Alert.alert("Lỗi", "Đã xảy ra lỗi khi xóa project");
+							Alert.alert("Error", "Error deleting project");
 						}
 					},
 				},
@@ -89,7 +89,7 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 	};
 	const handleCreateProject = async () => {
 		if (!newProjectName.trim()) {
-			Alert.alert("Lỗi", "Vui lòng nhập tên project");
+			Alert.alert("Error", "Please enter a project name");
 			return;
 		}
 
@@ -109,16 +109,16 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 			);
 
 			if (response.data.status) {
-				Alert.alert("Thành công", "Đã tạo project mới");
+				Alert.alert("Success", "Create a new project successfully");
 				setNewProjectName("");
 				setIsModalVisible(false);
 				fetchProjects(); // Refresh danh sách
 			} else {
-				Alert.alert("Lỗi", "Không thể tạo project");
+				Alert.alert("Fail", "Failed to create project");
 			}
 		} catch (error) {
 			console.error("Error creating project:", error);
-			Alert.alert("Lỗi", "Đã xảy ra lỗi khi tạo project");
+			Alert.alert("Error", "Error creating project");
 		} finally {
 			setIsLoading(false);
 		}
@@ -148,7 +148,7 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 			<ScrollView style={styles.container}>
 				<View style={styles.titleContainer}>
 					<Icon name="tablet-landscape" size={25} style={styles.titleIcon} />
-					<Text style={styles.title}>My boards</Text>
+					<Text style={styles.title}>Project</Text>
 					<Icon name="add" size={25} style={styles.addIcon} onPress={() => setIsModalVisible(true)} />
 				</View>
 
@@ -158,7 +158,7 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 				</View>
 
 				<View style={styles.contentContainer}>
-					<Text style={styles.headingText}>Danh sách bảng của bạn</Text>
+					<Text style={styles.headingText}>Your project</Text>
 				</View>
 
 				{filteredProjects.map((project, index) => {
@@ -185,21 +185,21 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 					<View style={styles.modalBackground}>
 						<View style={styles.modalContent}>
 							<View style={styles.modalHeader}>
-								<Text style={styles.modalTitle}>Tạo Project Mới</Text>
+								<Text style={styles.modalTitle}>New Project</Text>
 								<TouchableOpacity onPress={() => setIsModalVisible(false)}>
 									<Icon name="close" size={24} color="#333" />
 								</TouchableOpacity>
 							</View>
 
-							<TextInput style={styles.modalInput} placeholder="Nhập tên project" value={newProjectName} onChangeText={setNewProjectName} placeholderTextColor="#666" />
+							<TextInput style={styles.modalInput} placeholder="Input project name" value={newProjectName} onChangeText={setNewProjectName} placeholderTextColor="#666" />
 
 							<View style={styles.modalButtonContainer}>
 								<TouchableOpacity style={styles.cancelButton} onPress={() => setIsModalVisible(false)} disabled={isLoading}>
-									<Text style={styles.buttonText}>Hủy</Text>
+									<Text style={styles.buttonText}>Cancel</Text>
 								</TouchableOpacity>
 
 								<TouchableOpacity style={styles.createButton} onPress={handleCreateProject} disabled={isLoading}>
-									{isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Tạo Project</Text>}
+									{isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create</Text>}
 								</TouchableOpacity>
 							</View>
 						</View>

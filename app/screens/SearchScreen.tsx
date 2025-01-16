@@ -73,7 +73,7 @@ export default function SearchScreen({ token }: SearchScreenProps) {
             <Icon name="search" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Tìm kiếm"
+              placeholder="Search"
               value={searchText}
               onChangeText={(text) => setSearchText(text)}
               onSubmitEditing={fetchTasks}
@@ -88,7 +88,7 @@ export default function SearchScreen({ token }: SearchScreenProps) {
           keyExtractor={(item) => item.id}
           renderItem={renderTask}
           contentContainerStyle={styles.taskList}
-          ListEmptyComponent={<Text style={styles.emptyText}>Không có kết quả tìm kiếm</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>None</Text>}
         />
       </View>
     </GestureHandlerRootView>
