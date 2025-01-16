@@ -1,8 +1,194 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { router } from "expo-router";
+import React ,{useState,useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView ,Image} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import axios from "axios";
+import Constanst from "expo-constants";
+import { setToken } from "@/store/UserSlice";
+import { setIdProject } from "@/store/TaskSlice";
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-export default function AccountScreen() {
+import { Alert, Touchable } from 'react-native';
+
+import { useDispatch } from "react-redux";
+
+interface Project {
+	id: string;
+	name: string;
+	date: string;
+	creator: string;
+	members: string[] | null;
+	pending: string[] | null;
+}
+interface AccountScreenProps {
+	token: string;
+}
+export default function AccountScreen({ token }: AccountScreenProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const dispatch = useDispatch();
+
+
+  const [username, setUsername] = useState<string | null>(null);
+  const [userMail, setUserMail] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string| null>(null);
+//const token = useSelector((state: RootState) => state.user.token);
+  console.log('Kết quả trả về:', token);
+  const [email, setEmail] = useState('');
+  const blackImg = require("../../assets/images/b1.jpg");
+
+    // Hàm tải dữ liệu từ API
+    useEffect(() => {
+    const fetchUserData = async () => {
+      const handleGetUserName = async () => {
+        try {
+          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          //const data = response.data;
+          if (response.data?.status && response.data.result?.username) {
+            console.log('Kết quả trả về:', username);
+            return response.data.result.username;
+      
+            
+          }
+        //	console.log('Kết quả trả về:', response.data.username);
+        } catch (error: any) {
+          if (error.response) {
+            console.error("Error:", error.response.data.message || error.response.data.error);
+          } else if (error.request) {
+            console.error("Error:", error.request);
+          } else {
+            console.error("Error:", error.message);
+          }
+        }
+      };
+      const handleGetAvatar = async () => {
+        try {
+          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          //const data = response.data;
+          if (response.data?.status && response.data.result?.avatar) {
+            console.log('Kết quả trả về:', avatar);
+            return response.data.result.avatar;
+      
+            
+          }
+        //	console.log('Kết quả trả về:', response.data.username);
+        } catch (error: any) {
+          if (error.response) {
+            console.error("Error:", error.response.data.message || error.response.data.error);
+          } else if (error.request) {
+            console.error("Error:", error.request);
+          } else {
+            console.error("Error:", error.message);
+          }
+        }
+      };
+      const handleGetEmail = async () => {
+        try {
+          const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/users/user`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          //const data = response.data;
+          if (response.data?.status && response.data.result?.email) {
+            console.log('Kết quả trả về:', email);
+            return response.data.result.email;
+      
+            
+          }
+        //	console.log('Kết quả trả về:', response.data.username);
+        } catch (error: any) {
+          if (error.response) {
+            console.error("Error:", error.response.data.message || error.response.data.error);
+          } else if (error.request) {
+            console.error("Error:", error.request);
+          } else {
+            console.error("Error:", error.message);
+          }
+        }
+      };
+
+     
+        // Gọi API lấy username khi vào màn hình
+        const fetchUsername = async () => {
+          const fetchedUsername = await handleGetUserName();
+          setUsername(fetchedUsername); // Cập nhật state
+        };
+        const fetchAvatar = async ()=>{
+          const fetchedAvatar = await handleGetAvatar();
+          setAvatar(fetchedAvatar)
+        }
+        const fetchMail = async ()=>{
+          const fetchedMail = await handleGetEmail();
+          setUserMail(fetchedMail)
+        }
+     
+        fetchMail();
+        fetchAvatar();
+        fetchUsername();
+     
+    }
+
+  fetchUserData()
+}, 
+[]);
+
+  const fetchProjects = async () => {
+		try {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/projectsHasUser`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			if (response.data.status) {
+				setProjects(response.data.result);
+			} else {
+				Alert.alert("Error", "Failed to fetch projects");
+			}
+		} catch (error) {
+			console.error("Error fetching projects:", error);
+			Alert.alert("Error", "An error occurred while fetching projects");
+		}
+	};
+  useEffect(() => {
+    fetchProjects();
+}, []);
+
+const handleAccountSwitch = async () => {
+  try {
+    // Xóa token khỏi AsyncStorage
+
+    // Chuyển hướng về trang Login
+    router.replace("/Login/Login");
+    console.log("Switched account successfully");
+  } catch (error) {
+    console.error("Error during account switch:", error);
+    Alert.alert("Error", "Failed to switch account");
+  }
+};
+
+const handleNavigateToProjectTask = (idProject: string) => {
+    dispatch(setToken(token));
+    dispatch(setIdProject(idProject));
+    router.push("./Task/Task");
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Profile Section */}
@@ -39,14 +225,8 @@ export default function AccountScreen() {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Tài khoản</Text>
         <View style={styles.menuItem}>
-        <TouchableOpacity
-        onPress={() => router.push("/Profile/Profile")}
-        style={styles.menuItem}
-      >
           <Icon name="person-outline" size={24} color="#fff" />
-      <Text style={styles.menuText}>Hồ sơ và Hiển thị</Text>
-      </TouchableOpacity>
-    
+          <Text style={styles.menuText}  onPress={() => router.push("/Profile/Profile")}>Hồ sơ và Hiển thị</Text>
         </View>
         <View style={styles.menuItem}>
           <Icon name="swap-horizontal-outline" size={24} color="#fff" />

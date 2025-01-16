@@ -6,7 +6,7 @@ import axios from 'axios';
 import Constanst from "expo-constants";
 import { setToken } from "@/store/UserSlice";
 import { useDispatch } from "react-redux";
-
+import ForgotPassword from "@/app/ForgotPassword/ForgotPassword"
 
 export default function Login() {
   const [email, setEmail] = useState('');
