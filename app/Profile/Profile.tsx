@@ -196,7 +196,7 @@ const Profile = () => {
 
 	const handleUpdateUserName = async () => {
 		if (!NewUserName.trim()) {
-			Alert.alert("Error", "hãy nhập userName mới ! ");
+			Alert.alert("Error", "Please enter new username");
 			return;
 		}
 		setIsLoading(true);
@@ -212,15 +212,15 @@ const Profile = () => {
 				}
 			);
 			if (response.data.status) {
-				Alert.alert("Success", "UserName cập nhật thành công");
+				Alert.alert("Success", "Update username successfully");
 				setNewUserName("");
 			} else {
-				Alert.alert("Error", response.data.message || "lỗi khi cập nhật userName");
+				Alert.alert("Error", response.data.message || "Error updating username");
 			}
 			console.log("Kết quả trả về:", response.data);
 		} catch (error) {
 			console.error("lỗi cập nhật thất bại:", error);
-			Alert.alert("lỗi", "thất bại");
+			Alert.alert("Error", "Failed to update username");
 		} finally {
 			setIsLoading(false);
 		}
@@ -294,15 +294,15 @@ const Profile = () => {
 				}
 			);
 			if (response.data.status) {
-				Alert.alert("Success", "avatar cập nhật thành công");
+				Alert.alert("Success", "Update avatars successfully");
 				setAvatar("");
 			} else {
-				Alert.alert("Error", response.data.message || "lỗi khi cập nhật avatar");
+				Alert.alert("Error", response.data.message || "Error updating avatar");
 			}
 			console.log("Kết quả trả về:", response.data);
 		} catch (error) {
 			console.error("lỗi cập nhật thất bại:", error);
-			Alert.alert("lỗi", "thất bại");
+			Alert.alert("Failed", "Failed to update avatar");
 		} finally {
 			setIsLoading(false);
 		}
@@ -320,31 +320,31 @@ const Profile = () => {
 						</View>
 					</View>
 					<Text style={styles.nameText}>{username || "loading..."}</Text>
-					<Text style={styles.usernameText}>@{username || "loading..."}</Text>
+					{/* <Text style={styles.usernameText}>@{username || "loading..."}</Text> */}
 					<Text style={styles.emailText}>{userMail || "loading..."}</Text>
-					<Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text>
+					{/* <Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text> */}
 				</View>
 				{/* Container cho ảnh đại diện */}
 				<View style={styles.profileImageContainer}>{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Thay đổi Avatar" onPress={handleUpload} color={"#3D4135"} />}</View>
 
 				{/* Container cho chức năng đổi mật khẩu */}
 				<View style={styles.changePasswordContainer}>
-					<Text style={styles.header}>Thay đổi mật khẩu </Text>
+					<Text style={styles.header}>Change your password </Text>
 					<View style={{ padding: 20 }}>
-						<Text style={styles.Text}>Nhập địa chỉ Email tài khoản này :</Text>
+						<Text style={styles.Text}>Enter your email :</Text>
 						<TextInput style={styles.input} placeholder="Enter your email" placeholderTextColor="#888" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-						<Text style={styles.Text}>Nhập mật khẩu mới cho tài khoản :</Text>
+						<Text style={styles.Text}>Enter new password :</Text>
 
 						<TextInput style={styles.input} placeholderTextColor="#888" placeholder="New Password" value={newPassword} onChangeText={setNewPassword} secureTextEntry />
-						{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Cập Nhật" onPress={handleUpdatePassword} color={"#3D4135"} />}
+						{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Update" onPress={handleUpdatePassword} color={"#3D4135"} />}
 					</View>
 				</View>
 				<View style={styles.changePasswordContainer}>
-					<Text style={styles.header}>Thay đổi username </Text>
+					<Text style={styles.header}>Change username </Text>
 					<View style={{ padding: 20 }}>
-						<Text style={styles.Text}>Nhập username mới :</Text>
+						<Text style={styles.Text}>Enter new username :</Text>
 						<TextInput style={styles.input} placeholderTextColor="#888" placeholder="New username" value={NewUserName} onChangeText={setNewUserName} keyboardType="default" autoCapitalize="none" />
-						{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Cập Nhật" onPress={handleUpdateUserName} color={"#3D4135"} />}
+						{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Update" onPress={handleUpdateUserName} color={"#3D4135"} />}
 					</View>
 				</View>
 			</View>
