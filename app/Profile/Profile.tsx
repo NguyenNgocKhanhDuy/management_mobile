@@ -14,7 +14,7 @@ import { UserInterface } from "@/interfaces/Interface";
 import { Toast } from "toastify-react-native";
 import axios from "axios";
 import Constanst from "expo-constants";
-import { RootState } from "@/store/store";
+import store, { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import debounce from "lodash.debounce";
 import { TextInput, StyleSheet, Button } from 'react-native';
@@ -23,8 +23,9 @@ import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { State } from 'react-native-gesture-handler';
 import { useDispatch } from "react-redux";
-import{setId} from "@/store/UserSlice"
-
+import{setId} from "@/store/UserSlice";
+import { Provider } from 'react-redux';
+import { uploadImageToFirebase } from '../firebase/firebase';
 const Profile = () => {
     const blackImg = require("../../assets/images/b1.jpg");
 	const token = useSelector((state: RootState) => state.user.token);
@@ -38,6 +39,8 @@ const Profile = () => {
 	const [userMail, setUserMail] = useState<string | null>(null);
 	const [avatar, setAvatar] = useState<string| null>(null);
 
+const [NewUserAvatar, setNewUserAvatar] = useState('');
+const [loading, setLoading] = useState(false);
 	
 	const handleGetUserName = async () => {
 		try {
@@ -221,7 +224,53 @@ const Profile = () => {
 			setIsLoading(false); 
 		  }, 3000); 
 	  };
-
+	  const handleUpload = async () => {
+		try {
+		  setLoading(true);
+		  const imageUrl = await uploadImageToFirebase();
+		  handleUpdateAvatar(imageUrl as string); // Gọi hàm cập nhật avatar
+		  Alert.alert('Success', 'Avatar updated successfully!');
+		} catch (error) {
+		  Alert.alert('Error', 'Something went wrong.');
+		} finally {
+		  setLoading(false);
+		}
+	  };
+	  const handleUpdateAvatar = async (NewUserAvatar: string)=>{
+		// if (!NewUserAvatar.trim()) {
+		//    // Alert.alert('Error', 'hãy nhập userName mới ! ');
+		//     return;
+		//   }
+		  setIsLoading(true);
+		  try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/users/updateAvatar`,
+			  { avatar: NewUserAvatar.trim() },
+			  {
+				headers: {
+				  'Content-Type': 'application/json',
+				  Authorization: `Bearer ${token}`,
+	
+				},
+			  }
+			);
+			if (response.data.status) {
+			  Alert.alert('Success', 'avatar cập nhật thành công');
+			  setAvatar('');
+			} else {
+			  Alert.alert('Error', response.data.message || 'lỗi khi cập nhật avatar');
+			}
+			console.log('Kết quả trả về:', response.data);
+		  } catch (error) {
+			console.error('lỗi cập nhật thất bại:', error);
+			Alert.alert('lỗi', "thất bại");
+		  } finally {
+			setIsLoading(false);
+		  }
+		  setTimeout(() => {
+			  setIsLoading(false); 
+			}, 3000); 
+		};
 return (
 <ScrollView style={styles.container}>
     <View style={styles.container}>
@@ -240,12 +289,11 @@ return (
 			  </View>
       {/* Container cho ảnh đại diện */}
       <View style={styles.profileImageContainer}>
-        <TouchableOpacity
-          style={styles.changePhotoButton}
-         // onPress={changeProfileImage}
-        >
-          <Text style={styles.changePhotoButtonText}>Change Photo</Text>
-        </TouchableOpacity>
+	  {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <Button title="Thay đổi Avatar" onPress={handleUpload} color={"#3D4135"}/>
+      )}
       </View>
      
       {/* Container cho chức năng đổi mật khẩu */}
