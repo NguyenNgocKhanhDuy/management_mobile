@@ -16,7 +16,7 @@ import { setToken } from "@/store/UserSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { RootState } from "@/store/store";
 import { Colors } from "@/assets/Colors";
-import ActivityScreen from './ActivityScreen';
+import ActivityScreen from "./ActivityScreen";
 
 export default function Task(props: any) {
 	// const idProject = "66ed28755d88dd7f163a5773";
@@ -31,9 +31,11 @@ export default function Task(props: any) {
 	const [taskId, settaskId] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 	const [tempName, setTempName] = useState("");
+	const [projectName, setProjectName] = useState("");
 	const dispatch = useDispatch();
 
 	useEffect(() => {
+		handleGetProject();
 		handleGetTaskOfProject();
 	}, [idProject]);
 
@@ -70,12 +72,40 @@ export default function Task(props: any) {
 	// 	}
 	// };
 
-
-	
 	const handleNavigateToActivityOfTask = (idProject: string) => {
 		dispatch(setToken(token));
 		dispatch(setIdProject(idProject));
 		router.push("./ActivityScreen");
+	};
+
+	const handleGetProject = async () => {
+		setLoading(true);
+		try {
+			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/projects/${idProject}`, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const data = response.data;
+			if (data.status) {
+				setProjectName(data.result.name);
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error("Task: " + error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
 	};
 
 	const handleGetTaskOfProject = async () => {
@@ -252,20 +282,19 @@ export default function Task(props: any) {
 					<TouchableOpacity onPress={() => router.back()}>
 						<FontAwesome6 name="xmark" style={taskStyles.icon} />
 					</TouchableOpacity>
-					<Text style={taskStyles.text}>Project name</Text>
+						<Text style={taskStyles.text}>{projectName}</Text>
 				</View>
 				<View style={[taskStyles.flexRowLayout, { gap: 30 }]}>
 					<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-							<FontAwesome6 name="plus" style={taskStyles.icon} />
-						</TouchableOpacity>
-						
+						<FontAwesome6 name="plus" style={taskStyles.icon} />
+					</TouchableOpacity>
+
 					<TouchableOpacity>
-						<FontAwesome6 name="bell" style={taskStyles.icon} onPress={() => handleNavigateToActivityOfTask(idProject)}/>
+						<FontAwesome6 name="bell" style={taskStyles.icon} onPress={() => handleNavigateToActivityOfTask(idProject)} />
 					</TouchableOpacity>
 					<TouchableOpacity onPress={handleNavigateToMembers}>
 						<FontAwesome6 name="user-plus" style={taskStyles.icon} />
 					</TouchableOpacity>
-					
 				</View>
 			</View>
 			<Carousel
