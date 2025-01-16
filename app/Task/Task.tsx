@@ -8,13 +8,14 @@ import { taskStyles } from "./Task.styles";
 import { Toast } from "toastify-react-native";
 import Loading from "../Loading/Loading";
 import { TaskInterface } from "@/interfaces/Interface";
-import { BackHandler, TouchableOpacity, View, Text } from "react-native";
+import { BackHandler, TouchableOpacity, View, Text, Modal, Alert, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setIdProject, setTaskId } from "@/store/TaskSlice";
 import { setToken } from "@/store/UserSlice";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { RootState } from "@/store/store";
+import { Colors } from "@/assets/Colors";
 import ActivityScreen from './ActivityScreen';
 
 export default function Task(props: any) {
@@ -28,22 +29,24 @@ export default function Task(props: any) {
 	const carouselRef = useRef<Carousel>(null);
 	const [move, setMove] = useState(false);
 	const [taskId, settaskId] = useState("");
+	const [modalVisible, setModalVisible] = useState(false);
+	const [tempName, setTempName] = useState("");
 	const dispatch = useDispatch();
 
 	useEffect(() => {
 		handleGetTaskOfProject();
 	}, [idProject]);
 
-	useEffect(() => {
-		const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-			handleBackPress();
-			return false;
-		});
+	// useEffect(() => {
+	// 	const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+	// 		handleBackPress();
+	// 		return false;
+	// 	});
 
-		return () => {
-			backHandler.remove();
-		};
-	}, [tasks, move]);
+	// 	return () => {
+	// 		backHandler.remove();
+	// 	};
+	// }, [tasks, move]);
 
 	useEffect(() => {
 		if (taskId != "") {
@@ -53,18 +56,28 @@ export default function Task(props: any) {
 		}
 	}, [taskId]);
 
-	const handleBackPress = async () => {
+	useEffect(() => {
 		if (move) {
-			await handleUpdateStatusAndPositionTask();
-		} else {
-			setLoading(false);
+			handleUpdateStatusAndPositionTask();
 		}
-	};
+	}, [move]);
+
+	// const handleBackPress = async () => {
+	// 	if (move) {
+	// 		await handleUpdateStatusAndPositionTask();
+	// 	} else {
+	// 		setLoading(false);
+	// 	}
+	// };
+
+
+	
 	const handleNavigateToActivityOfTask = (idProject: string) => {
 		dispatch(setToken(token));
 		dispatch(setIdProject(idProject));
 		router.push("./ActivityScreen");
 	};
+
 	const handleGetTaskOfProject = async () => {
 		setLoading(true);
 		try {
@@ -96,8 +109,47 @@ export default function Task(props: any) {
 		}
 	};
 
-	const handleUpdateStatusAndPositionTask = async () => {
+	const handleAddTask = async () => {
 		setLoading(true);
+		try {
+			const response = await axios.post(
+				`${Constanst.expoConfig?.extra?.API_URL}/tasks/addTask`,
+				{
+					name: tempName,
+					project: idProject,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			const data = response.data;
+			if (data.status) {
+				console.log(data.result);
+				setTasks(data.result);
+				setModalVisible(!modalVisible);
+				setLoading(false);
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error("Task: " + error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+			setLoading(false);
+		}
+	};
+
+	const handleUpdateStatusAndPositionTask = async () => {
+		// setLoading(true);
 		console.log("Update");
 		console.log(tasks);
 
@@ -121,7 +173,7 @@ export default function Task(props: any) {
 			if (data.status) {
 				console.log(data.result);
 				// setTasks(data.result);
-				setLoading(false);
+				// setLoading(false);
 				setMove(false);
 			}
 		} catch (error: any) {
@@ -135,7 +187,7 @@ export default function Task(props: any) {
 				console.error("Error:", error.message);
 				Toast.error("An unexpected error occurred: " + error.message);
 			}
-			setLoading(false);
+			// setLoading(false);
 		}
 	};
 
@@ -203,15 +255,17 @@ export default function Task(props: any) {
 					<Text style={taskStyles.text}>Project name</Text>
 				</View>
 				<View style={[taskStyles.flexRowLayout, { gap: 30 }]}>
+					<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+							<FontAwesome6 name="plus" style={taskStyles.icon} />
+						</TouchableOpacity>
+						
 					<TouchableOpacity>
 						<FontAwesome6 name="bell" style={taskStyles.icon} onPress={() => handleNavigateToActivityOfTask(idProject)}/>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={handleNavigateToMembers}>
 						<FontAwesome6 name="user-plus" style={taskStyles.icon} />
 					</TouchableOpacity>
-					<TouchableOpacity>
-						<FontAwesome6 name="ellipsis" style={taskStyles.icon} />
-					</TouchableOpacity>
+					
 				</View>
 			</View>
 			<Carousel
@@ -228,6 +282,34 @@ export default function Task(props: any) {
 					<Board key={index} title={title} tasks={sortTaskByPosition(tasks.filter((task) => task.status === title.toLowerCase().replace(/\s+/g, "")))} onMoveRight={handleMoveRight} onMoveLeft={handleMoveLeft} onTaskDrop={handleTaskDrop} setTaskId={(id: string) => settaskId(id)} />
 				))}
 			</Carousel>
+			{modalVisible ? (
+				<Modal
+					animationType="slide"
+					transparent={true}
+					visible={modalVisible}
+					onRequestClose={() => {
+						Alert.alert("Modal has been closed.");
+						setModalVisible(!modalVisible);
+					}}
+				>
+					<View style={taskStyles.centeredView}>
+						<View style={taskStyles.modalView}>
+							<Text style={taskStyles.modalText}>New Task</Text>
+							<TextInput style={taskStyles.input} placeholder={"Input Task Name"} onChangeText={(text) => setTempName(text)} />
+							<View style={[taskStyles.flexRowLayout, { gap: 60, marginTop: 30 }]}>
+								<Pressable style={[taskStyles.button, { backgroundColor: Colors.lightGreen }]} onPress={handleAddTask}>
+									<Text style={taskStyles.textStyle}>Save</Text>
+								</Pressable>
+								<Pressable style={[taskStyles.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalVisible(!modalVisible)}>
+									<Text style={taskStyles.textStyle}>Close</Text>
+								</Pressable>
+							</View>
+						</View>
+					</View>
+				</Modal>
+			) : (
+				""
+			)}
 		</GestureHandlerRootView>
 	);
 }

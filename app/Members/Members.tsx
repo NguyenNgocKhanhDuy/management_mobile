@@ -27,7 +27,9 @@ export default function Members() {
 	const [membersId, setMembersId] = useState<string[]>([]);
 	const [creatorId, setCreatorId] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
+	const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
 	const [selectUser, setSelectUser] = useState<UserInterface>();
+	const [deleteUser, setDeleteUser] = useState<UserInterface>();
 
 	useEffect(() => {
 		setLoading(true);
@@ -156,6 +158,7 @@ export default function Members() {
 	};
 
 	const handleAddMember = async () => {
+		console.log(selectUser);
 		setLoading(true);
 		var updatePending;
 		if (pendingId != null) {
@@ -200,6 +203,57 @@ export default function Members() {
 		}
 	};
 
+	const handleDeleteMember = async () => {
+		console.log(selectUser);
+
+		const update = users.filter((user) => user.id != selectUser?.id);
+
+		try {
+			const response = await axios.put(
+				`${Constanst.expoConfig?.extra?.API_URL}/projects/updateMembers`,
+				{
+					id: idProject,
+					pending: update,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+			const data = response.data;
+			if (data.status) {
+				Toast.success("Delete successfully");
+				setModalDeleteVisible(!modalDeleteVisible);
+				setUsers((prevValue) => {
+					return prevValue.filter((user) => user.id != selectUser?.id);
+				});
+			}
+		} catch (error: any) {
+			if (error.response) {
+				console.error("Error:", error.response.data.message || error.response.data.error);
+				Toast.error(error.response.data.message || error.response.data.error);
+			} else if (error.request) {
+				console.error("Error:", error.request);
+				Toast.error("Failed to connect to server.");
+			} else {
+				console.error("Error:", error.message);
+				Toast.error("An unexpected error occurred: " + error.message);
+			}
+		}
+	};
+
+	const handleShowModal = (u: UserInterface) => {
+		setSelectUser(u);
+
+		if (u.id == creatorId || membersId.includes(u.id) || pendingId.includes(u.id)) {
+			setModalDeleteVisible(true);
+		} else {
+			setModalVisible(!modalVisible);
+		}
+	};
+
 	return loading ? (
 		<Loading />
 	) : (
@@ -216,14 +270,7 @@ export default function Members() {
 				<TextInput style={membersStyle.input} placeholder="Enter Email" onChangeText={handleOnChange} />
 				<ScrollView style={{ marginTop: 30 }}>
 					{users.map((u) => (
-						<TouchableOpacity
-							key={u.id}
-							onPress={() => {
-								setSelectUser(u);
-								setModalVisible(!modalVisible);
-							}}
-							style={[membersStyle.flexRowLayout, membersStyle.box]}
-						>
+						<TouchableOpacity key={u.id} onPress={() => handleShowModal(u)} style={[membersStyle.flexRowLayout, membersStyle.box]}>
 							<View style={[membersStyle.flexRowItem]}>
 								<Image source={u?.avatar ? { uri: u.avatar } : blackImg} style={membersStyle.image} />
 								<View>
@@ -238,37 +285,62 @@ export default function Members() {
 					))}
 				</ScrollView>
 			</View>
-			{modalVisible ? (
-				<Modal
-					animationType="slide"
-					transparent={true}
-					visible={modalVisible}
-					onRequestClose={() => {
-						Alert.alert("Modal has been closed.");
-						setModalVisible(!modalVisible);
-					}}
-				>
-					<View style={membersStyle.centeredView}>
-						<View style={membersStyle.modalView}>
-							<View>
-								<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={[membersStyle.modalImage, { marginHorizontal: "auto" }]} />
-								<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
-								<Text style={membersStyle.modalText}>{selectUser?.email}</Text>
-							</View>
-							<View style={[membersStyle.flexRowLayout, { gap: 60, marginTop: 30 }]}>
-								<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGreen }]} onPress={handleAddMember}>
-									<Text style={membersStyle.textStyle}>Invite</Text>
-								</Pressable>
-								<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalVisible(!modalVisible)}>
-									<Text style={membersStyle.textStyle}>Close</Text>
-								</Pressable>
-							</View>
+
+			<Modal
+				animationType="slide"
+				transparent={true}
+				visible={modalVisible}
+				onRequestClose={() => {
+					Alert.alert("Modal has been closed.");
+					setModalVisible(!modalVisible);
+				}}
+			>
+				<View style={membersStyle.centeredView}>
+					<View style={membersStyle.modalView}>
+						<View>
+							<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={[membersStyle.modalImage, { marginHorizontal: "auto" }]} />
+							<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
+							<Text style={membersStyle.modalText}>{selectUser?.email}</Text>
+						</View>
+						<View style={[membersStyle.flexRowLayout, { gap: 60, marginTop: 30 }]}>
+							<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGreen }]} onPress={handleAddMember}>
+								<Text style={membersStyle.textStyle}>Invite</Text>
+							</Pressable>
+							<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalVisible(!modalVisible)}>
+								<Text style={membersStyle.textStyle}>Close</Text>
+							</Pressable>
 						</View>
 					</View>
-				</Modal>
-			) : (
-				""
-			)}
+				</View>
+			</Modal>
+
+			<Modal
+				animationType="slide"
+				transparent={true}
+				visible={modalDeleteVisible}
+				onRequestClose={() => {
+					Alert.alert("Modal has been closed.");
+					setModalDeleteVisible(!modalDeleteVisible);
+				}}
+			>
+				<View style={membersStyle.centeredView}>
+					<View style={membersStyle.modalView}>
+						<View>
+							<Image source={selectUser?.avatar ? { uri: selectUser.avatar } : blackImg} style={[membersStyle.modalImage, { marginHorizontal: "auto" }]} />
+							<Text style={membersStyle.modalText}>{selectUser?.username}</Text>
+							<Text style={membersStyle.modalText}>{selectUser?.email}</Text>
+						</View>
+						<View style={[membersStyle.flexRowLayout, { gap: 60, marginTop: 30 }]}>
+							<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGreen }]} onPress={handleDeleteMember}>
+								<Text style={membersStyle.textStyle}>Remove</Text>
+							</Pressable>
+							<Pressable style={[membersStyle.button, { backgroundColor: Colors.lightGrey }]} onPress={() => setModalDeleteVisible(!modalDeleteVisible)}>
+								<Text style={membersStyle.textStyle}>Close</Text>
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
 		</View>
 	);
 }
