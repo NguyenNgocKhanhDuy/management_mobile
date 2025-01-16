@@ -29,7 +29,6 @@ export default function Members() {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
 	const [selectUser, setSelectUser] = useState<UserInterface>();
-	const [deleteUser, setDeleteUser] = useState<UserInterface>();
 
 	useEffect(() => {
 		setLoading(true);
@@ -98,12 +97,28 @@ export default function Members() {
 			const data = response.data;
 			if (data.status) {
 				setUsersId(() => {
-					return [data.result.creator, ...data.result.members, ...data.result.pending];
+					return [data.result.creator];
 				});
 
+				if (data.result.members) {
+					setUsersId((prevValue) => {
+						return [...prevValue, ...data.result.members];
+					});
+					setMembersId(data.result.members);
+				}
+
+				if (data.result.pending) {
+					setUsersId((prevValue) => {
+						return [...prevValue, ...data.result.pending];
+					});
+
+					setPendingId(data.result.pending);
+				}
+				// setUsersId(() => {
+				// 	return [data.result.creator, ...data.result.members, ...data.result.pending];
+				// });
+
 				setCreatorId(data.result.creator);
-				setMembersId(data.result.members);
-				setPendingId(data.result.pending);
 
 				setLoading(false);
 			}
