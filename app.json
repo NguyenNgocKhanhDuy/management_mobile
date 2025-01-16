@@ -8,6 +8,7 @@
 		"scheme": "myapp",
 		"extra": {
 			"API_URL": "https://nnkd-mangement.onrender.com",
+			"API_URL_2": "http://192.168.1.4:8080"
 		},
 		"userInterfaceStyle": "automatic",
 		"splash": {

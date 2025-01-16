@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/Ionicons";
 import { StyleSheet } from "react-native";
 import { formatToLocalDateTime, dateShortFull } from "@/utils/date"; // Import các hàm định dạng thời gian
+import Loading from "../Loading/Loading";
 
 interface Log {
 	action: string;
@@ -25,9 +26,11 @@ const ActivityScreen: React.FC = () => {
 	const token = useSelector((state: RootState) => state.user.token);
 	const idProject = useSelector((state: RootState) => state.task.idProject);
 	const [logs, setLogs] = useState<Log[]>([]);
+	const [loading, setLoading] = useState(false);
 
 	// Hàm fetchLogs
 	const fetchLogs = async () => {
+		setLoading(true);
 		try {
 			const response = await axios.get(`${Constanst.expoConfig?.extra?.API_URL}/logs`, {
 				headers: {
@@ -47,9 +50,11 @@ const ActivityScreen: React.FC = () => {
 			} else {
 				Alert.alert("Lỗi", "Không thể lấy danh sách hoạt động");
 			}
+			setLoading(false);
 		} catch (error) {
 			console.error("Lỗi khi gọi API logs:", error);
 			Alert.alert("Lỗi", "Đã xảy ra lỗi khi lấy danh sách hoạt động");
+			setLoading(false);
 		}
 	};
 	const adjustedDate = (date: Date, offsetHours: number): Date => {
@@ -68,7 +73,9 @@ const ActivityScreen: React.FC = () => {
 		navigation.goBack();
 	};
 
-	return (
+	return loading ? (
+		<Loading />
+	) : (
 		<GestureHandlerRootView style={styles.container}>
 			<View style={styles.titleContainer}>
 				<TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
