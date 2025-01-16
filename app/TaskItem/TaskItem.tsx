@@ -3,11 +3,13 @@ import { Animated, Text, Dimensions, View, Image, TouchableOpacity } from "react
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { taskItemStyles } from "./TaskItem.styles";
 import { FontAwesome } from "@expo/vector-icons";
+import { formatMonth } from "@/utils/date";
 
 export default function TaskItem(props: any) {
 	const [opacity] = useState(new Animated.Value(1));
 	const translateX = useState(new Animated.Value(0))[0];
 	const translateY = useState(new Animated.Value(0))[0];
+	
 
 	const screenWidth = Dimensions.get("window").width;
 	const [hasMoved, setHasMoved] = useState(false);
@@ -103,14 +105,14 @@ export default function TaskItem(props: any) {
 			<Animated.View style={[taskItemStyles.taskItem, { width: "100%", opacity, transform: [{ translateX }, { translateY }] }, taskItemStyles.container]}>
 				<View style={taskItemStyles.date}>
 					<FontAwesome name="calendar" style={taskItemStyles.dateText} />
-					<Text style={taskItemStyles.dateText}>September 20</Text>
+					<Text style={taskItemStyles.dateText}>{formatMonth(new Date(props.task.date)) + " " + new Date(props.task.date).getDate()}</Text>
 				</View>
 				<Text style={taskItemStyles.name}>{props.task.name}</Text>
 				<View style={taskItemStyles.info}>
 					<Image style={taskItemStyles.avatar} source={blackImg} />
 					<View style={taskItemStyles.date}>
 						<FontAwesome name="flag" style={taskItemStyles.dateText} />
-						<Text style={taskItemStyles.dateText}>September 28</Text>
+						<Text style={taskItemStyles.dateText}>{formatMonth(new Date(props.task.deadline ?? new Date())) + " " + new Date(props.task.deadline ?? new Date()).getDate()}</Text>
 					</View>
 				</View>
 			</Animated.View>
