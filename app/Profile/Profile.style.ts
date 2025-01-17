@@ -43,23 +43,25 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
       textAlign: 'left',
       color: '#ffffff',
+      marginStart:5
     },
     input: {
       height: 40,
-      width:350,
+      width:310,
       borderWidth: 1,
       borderColor: '#fff',
       borderRadius: 8,
       paddingHorizontal: 15,
       marginBottom: 15,
       backgroundColor: '#3D4135',
-      color:"#fff"
+      color:"#fff",
     },
     Text:{
       fontSize: 14,
       fontWeight: 'medium',
       textAlign: 'left',
       color: '#ffffff',
+      marginStart:5
     },
     avatarContainer: {
       width: 80,
