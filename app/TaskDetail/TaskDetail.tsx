@@ -31,6 +31,7 @@ export default function TaskDetail(props: any) {
 	const [idSubtask, setIdSubtask] = useState("");
 	const [idCreator, setIdCreator] = useState("");
 	const [tempName, setTempName] = useState("");
+	const [subName, setSubName] = useState("");
 	const [prevName, setPrevName] = useState("");
 	const [percentage, setPercentage] = useState(100);
 	const [modalVisible, setModalVisible] = useState(false);
@@ -264,7 +265,7 @@ export default function TaskDetail(props: any) {
 			const data = response.data;
 			if (data.status) {
 				// console.log(data.result);
-				router.push("/Task/Task");
+				router.back()
 				setLoading(false);
 			}
 		} catch (error: any) {
@@ -302,9 +303,10 @@ export default function TaskDetail(props: any) {
 
 			const data = response.data;
 			if (data.status) {
-				setSubtasks((prevST) => {
-					return [...prevST, data.result];
-				});
+				// setSubtasks((prevST) => {
+				// 	return [...prevST, data.result];
+				// });
+				handleGetSubtaskByTaskId()
 			}
 		} catch (error: any) {
 			if (error.response) {
@@ -392,7 +394,7 @@ export default function TaskDetail(props: any) {
 				`${Constanst.expoConfig?.extra?.API_URL}/subtasks/updateSubtaskTitle`,
 				{
 					id: idSubtask,
-					title: tempName,
+					title: subName,
 				},
 				{
 					headers: {
@@ -406,7 +408,7 @@ export default function TaskDetail(props: any) {
 			if (data.status) {
 				setSubtasks((prevST) => {
 					if (!prevST) return [];
-					return prevST.map((st) => (st.id === idSubtask ? { ...st, title: tempName } : st));
+					return prevST.map((st) => (st.id === idSubtask ? { ...st, title: subName } : st));
 				});
 				setModalVisible(!modalVisible);
 				setTypeUpdate("");
@@ -456,6 +458,14 @@ export default function TaskDetail(props: any) {
 		const date = new Date(dateString);
 		return dateShort(date);
 	};
+
+	const handleCheckRename = (text: string) => {
+		if (typeRename == "task") {
+			setTempName(text)
+		} else if (typeRename == "subtask") {
+			setSubName(text)
+		}
+	}
 
 	return loading ? (
 		<Loading />
@@ -555,7 +565,7 @@ export default function TaskDetail(props: any) {
 					<View style={styles.centeredView}>
 						<View style={styles.modalView}>
 							<Text style={styles.modalText}>Rename</Text>
-							<TextInput style={styles.input} placeholder={prevName} onChangeText={(text) => setTempName(text)} />
+							<TextInput style={styles.input} placeholder={prevName} onChangeText={(text) => handleCheckRename(text)} />
 							<View style={[styles.flexRowLayout, { gap: 60, marginTop: 30 }]}>
 								<Pressable style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={handleModalRename}>
 									<Text style={styles.textStyle}>Save</Text>
