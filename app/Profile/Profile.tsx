@@ -10,6 +10,8 @@ import { useSelector } from "react-redux";
 import { TextInput, StyleSheet, Button } from "react-native";
 import { storage } from "../firebase/firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "@firebase/storage";
+import { FontAwesome6 } from "@expo/vector-icons";
+import { router } from "expo-router";
 const Profile = () => {
 	const blackImg = require("../../assets/images/b1.jpg");
 	const token = useSelector((state: RootState) => state.user.token);
@@ -313,7 +315,11 @@ const Profile = () => {
 	return (
 		<ScrollView style={styles.container}>
 			<View style={styles.container}>
+			<TouchableOpacity style={{position: "absolute", top: 10, left:10, padding:10}} onPress={() => router.back()}>
+						<FontAwesome6 name="xmark" style={{fontSize: 30, color:"#fff"}}/>
+					</TouchableOpacity>
 				<View style={styles.profileSection}>
+					
 					<View style={styles.avatarContainer}>
 						<View style={{ marginTop: 30 }}>
 							<Image source={avatar ? { uri: avatar } : blackImg} style={styles.profileImage} />
@@ -325,7 +331,7 @@ const Profile = () => {
 					{/* <Text style={styles.memberText}>Là thành viên Trello từ tháng 3 năm 2024</Text> */}
 				</View>
 				{/* Container cho ảnh đại diện */}
-				<View style={styles.profileImageContainer}>{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Thay đổi Avatar" onPress={handleUpload} color={"#3D4135"} />}</View>
+				<View style={styles.profileImageContainer}>{isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : <Button title="Change Avatar" onPress={handleUpload} color={"#3D4135"} />}</View>
 
 				{/* Container cho chức năng đổi mật khẩu */}
 				<View style={styles.changePasswordContainer}>

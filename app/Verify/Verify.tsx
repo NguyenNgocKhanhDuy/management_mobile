@@ -12,11 +12,18 @@ import {
 import { verifyStyles } from "./Verify.style";
 import axios from "axios";
 import Constanst from "expo-constants";
+import { useSelector } from "react-redux";
+import { State } from "react-native-gesture-handler";
+import { RootState } from "@/store/store";
+import { router } from "expo-router";
+import Login from "../Login/Login";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // Lưu giá trị của các ô nhập
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const [isResending, setIsResending] = useState(false); // Trạng thái gửi lại mã
+
+  const e = useSelector((state: RootState) =>state.user.email)
 
   const handleChangeText = (text: string, index: number) => {
      // Kiểm tra nếu ký tự nhập vào không phải số
@@ -58,7 +65,7 @@ export default function VerifyEmailScreen() {
       const response = await axios.post(
         `${Constanst.expoConfig?.extra?.API_URL}/users/sendCodeToUser`, // Endpoint phù hợp
         {
-          email: "hoangson145juzk@gmail.com", // Thay thế bằng email người dùng thực tế
+          email: e // Thay thế bằng email người dùng thực tế
         }
       );
   
@@ -88,7 +95,7 @@ export default function VerifyEmailScreen() {
       const response = await axios.post(
         `${Constanst.expoConfig?.extra?.API_URL}/users/verifyCode`,
         {
-          email: "hoangson145juzk@gmail.com", // Email cần xác minh
+          email: e, // Email cần xác minh
           code: verificationCode, // Mã xác thực người dùng nhập
         }
       );
@@ -97,6 +104,7 @@ export default function VerifyEmailScreen() {
       const { status, result } = response.data;
   
       if (status && result.valid) {
+        router.push("/Login/Login")
         Alert.alert("Success", "Email verified successfully!"); // Xác thực thành công
         // Thực hiện điều hướng hoặc các thao tác khác nếu cần
       } else {

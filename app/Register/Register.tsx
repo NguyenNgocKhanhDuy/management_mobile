@@ -5,11 +5,17 @@ import styles from "./Register.styles";
 import axios from "axios";
 import Constants from "expo-constants";
 import { router } from "expo-router";
+import Loading from "../Loading/Loading";
+import { useDispatch } from "react-redux";
+import { saveEmail } from "@/store/UserSlice";
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+
 
   const handleRegister = async () => {
     if (!email.includes("@")) {
@@ -20,6 +26,7 @@ export default function RegisterScreen() {
       Alert.alert("Validation Error", "Password must be at least 6 characters");
     } else {
       try {
+        setIsLoading(true)
         const response = await axios.post(
           `${Constants.expoConfig?.extra?.API_URL}/users/register`,
           {
@@ -35,27 +42,33 @@ export default function RegisterScreen() {
         );
 
         if (response.data.status) {
+        
+          setIsLoading(false)
+          dispatch(saveEmail(email))
           Alert.alert(
             "Success",
-            "Registration successful! Redirecting to Login.",
+            "Registration successful!.",
             [
               {
                 text: "OK",
-                onPress: () => router.push("/Login/Login"),
+                onPress: () => router.push("/Verify/Verify"),
               },
             ]
           );
         } else {
+          setIsLoading(false)
           Alert.alert("Error", response.data.message || "Registration failed.");
         }
       } catch (error) {
+        setIsLoading(false)
+
         console.error("Error during registration:", error);
         Alert.alert("Error", "An error occurred while registering.");
       }
     }
   };
 
-  return (
+  return isLoading ? <Loading/> : (
     <View style={styles.container}>
       <Text style={styles.title}>Create Your Account</Text>
       <Text style={styles.subtitle}>Join us and start your journey today!</Text>

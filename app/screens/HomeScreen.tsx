@@ -126,6 +126,8 @@ export default function HomeScreen({ token }: HomeScreenProps) {
 	// Gọi API khi component được render
 	useEffect(() => {
 		fetchProjects();
+		console.log("Login successful, token:", token);
+
 	}, []);
 
 	useEffect(() => {}, [projects]);

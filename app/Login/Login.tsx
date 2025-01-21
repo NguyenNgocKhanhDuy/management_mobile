@@ -90,6 +90,7 @@ export default function Login() {
 				const qrData = result[0].data;
 				Toast.success("Login successful");
 				dispatch(setToken(qrData));
+
 				router.push({
 					pathname: "/App",
 					params: { token: qrData },
@@ -110,7 +111,9 @@ export default function Login() {
 		router.push({
 			pathname: "/App",
 			params: { token: data },
+			
 		});
+
 	};
 
 	if (hasPermission === null) {
